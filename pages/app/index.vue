@@ -338,19 +338,19 @@ async function showTimeOff(id) {
     <AppUserInfo :employeeData="employeeData" :loading="employeeLoading" />
 
     <div class="dashboard">
-      <div class="flex justify-between items-center mx-8 mb-2">
+      <div class="block lg:flex justify-between items-center mx-8 mb-2">
         <div>
           <nav
-            class="bg-[#E6E5E4] lg:w-full items-center lg:flex flex rounded-lg px-[2px] py-[2px] my-2 gap-3"
+            class="bg-[#E6E5E4] lg:w-full items-center block lg:flex w-full rounded-lg px-[2px] py-[2px] my-2 gap-3"
           >
             <button
               v-for="(tab, index) in tabs"
               :key="index"
               @click="activeTab = tab"
               :class="{
-                'border-transparent text-[#9D9B97] hover:text-gray-700 w-[120px] ':
+                'w-full border-transparent text-[#9D9B97] hover:text-gray-700 lg:w-[120px] ':
                   activeTab !== tab,
-                'bg-white text-black font-normal text-sm w-[120px] rounded-lg ':
+                'bg-white text-black font-normal text-sm lg:w-[120px] rounded-lg w-full':
                   activeTab === tab,
               }"
               class="w-1/4 py-2 px-1 text-center font-medium text-sm"

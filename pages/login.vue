@@ -72,7 +72,7 @@ async function logOut() {
           <h1 class="welcome">Welcome back!</h1>
           <p class="sub-text">Welcome back! Please enter your details</p>
         </div>
-        <section v-if="isAuthenticated">
+        <section v-if="isAuthenticated && !userLoading">
           <div
             class="flex gap-2 items-center p-3.5 justify-start text-dark font-bold hover:text-white bg-white border hover:bg-primary transition-all rounded-lg w-3/4"
           >

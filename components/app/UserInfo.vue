@@ -153,6 +153,6 @@ defineProps({
 
 <style scoped>
 .user-info {
-  @apply col-span-2 h-screen !bg-[#F7F7F6] pt-10 hidden lg:block w-full;
+  @apply col-span-2 h-screen !bg-[#F7F7F6] pt-10 hidden md:hidden sm:hidden lg:block w-full;
 }
 </style>
