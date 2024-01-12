@@ -1,12 +1,6 @@
 <script setup>
 import moment from "moment/moment";
-const emit = defineEmits([
-  "paginate",
-  "confirm",
-  "reject",
-  "showclockinDetails",
-  "timeoffDetails",
-]);
+const emit = defineEmits(["paginate", "confirm", "reject", "timeoffDetails"]);
 defineProps({
   headers: Array,
   data: Array,
@@ -18,24 +12,24 @@ defineProps({
 </script>
 
 <template>
-  <div class="bg-white px-1">
+  <div class="bg-white">
     <!-- employee leaves -->
     <div
-      v-if="leavesItems.length > 0"
-      v-for="(item, i) in leavesItems"
+      v-if="data.length > 0"
+      v-for="(item, i) in data"
       :key="i"
       :class="
         item.approval_status === 'pending'
-          ? `grid-cols-8 lg:grid-cols-6 grid-rows-${items.length} bg-[#F7F7F6]  py-0 border-l-warning border-l-4`
+          ? `grid-cols-8 lg:grid-cols-6 grid-rows-${data.length} bg-[#F7F7F6]  py-0 border-l-warning border-l-4`
           : item.approval_status === 'rejected'
-          ? `grid-cols-8 lg:grid-cols-6 grid-rows-${items.length} bg-[#F7F7F6]  py-0 border-l-danger border-l-4`
-          : `grid-cols-8 lg:grid-cols-6 grid-rows-${items.length} bg-[#F7F7F6]  py-0 border-l-primary border-l-4`
+          ? `grid-cols-8 lg:grid-cols-6 grid-rows-${data.length} bg-[#F7F7F6]  py-0 border-l-danger border-l-4`
+          : `grid-cols-8 lg:grid-cols-6 grid-rows-${data.length} bg-[#F7F7F6]  py-0 border-l-primary border-l-4`
       "
       class="lg:grid items-center gap-10 ml-3 lg:ml-0 border lg:border-t-0 lg:border-r-0 lg:border-l-0 border-b my-4 lg:my-0 font-primary font-normal text-sm text-[#9D9B97]"
     >
-      <div class="block" v-if="item.key == 'leave'">
+      <div class="block">
         <div
-          class="flex items-center gap-2 border-b-2 w-full border-r lg:h-16 lg:border-l-4 pl-1 border-l-primary lg:border-solid border-none py-1 lg:border-b-[#eeeeeb]"
+          class="flex items-center gap-2 w-full border-r lg:h-16 lg:border-l-4 pl-1 border-l-primary lg:border-solid border-none py-1"
           :class="
             item.approval_status == 'pending'
               ? '!border-l-warning'
@@ -57,7 +51,7 @@ defineProps({
           </div>
 
           <svg
-            @click="showNoteHandler(item.id)"
+            @click="emit('timeoffDetails', item.id)"
             class="ml-20 lg:hidden"
             width="16"
             height="16"
@@ -80,7 +74,7 @@ defineProps({
               ? '!border-l-danger'
               : '!border-l-primary'
           "
-          v-if="item.key == 'leave' && item.status !== 'hours'"
+          v-if="item.status !== 'hours'"
         >
           <div class="border rounded-[20px] px-1 border-[#171106]">
             <p class="text-[#171106] text-xs font-normal font-primary mx-[2px]">
@@ -112,7 +106,6 @@ defineProps({
 
       <div class="lg:hidden block px-4">
         <svg
-          v-if="item.key == 'leave'"
           class="my-2"
           width="10"
           height="16"
@@ -129,7 +122,6 @@ defineProps({
 
       <div
         class="lg:hidden flex items-center gap-2 w-full border-r lg:border-l-4 pl-1 border-l-primary border-gray-300"
-        v-if="item.key == 'leave'"
       >
         <div class="border rounded-[20px] px-1 border-[#171106]">
           <p class="text-[#171106] text-xs font-normal font-primary mb-1">
@@ -144,7 +136,7 @@ defineProps({
         </div>
       </div>
 
-      <div class="lg:flex hidden items-start gap-1" v-if="item.key == 'leave'">
+      <div class="lg:flex hidden items-start gap-1">
         <svg
           class="mt-1"
           width="12"
@@ -181,11 +173,8 @@ defineProps({
         </div>
       </div>
       <!-- mobile view break-->
-      <hr class="lg:hidden mt-2" v-if="item.key == 'leave'" />
-      <div
-        class="flex items-center justify-between lg:hidden py-4 w-full px-4"
-        v-if="item.key == 'leave'"
-      >
+      <hr class="lg:hidden mt-2" />
+      <div class="flex items-center justify-between lg:hidden py-4 w-full px-4">
         <div class="w-1/2 flex gap-1">
           <svg
             class="mt-1"
@@ -230,10 +219,7 @@ defineProps({
       </div>
 
       <!-- mobile view break-->
-      <div
-        class="flex items-center justify-between lg:hidden py-2 w-full px-4"
-        v-if="item.key == 'leave'"
-      >
+      <div class="flex items-center justify-between lg:hidden py-2 w-full px-4">
         <div class="w-1/2">
           <p class="text-[11px]">Approved on</p>
           <p class="text-[#171106] font-primary font-medium text-sm">
@@ -261,7 +247,7 @@ defineProps({
           </div>
         </div>
       </div>
-      <div v-if="item.key == 'leave'" class="lg:block hidden">
+      <div class="lg:block hidden">
         <div>
           <p class="text-[#9D9B97] text-[11px] font-normal">Type</p>
           <p class="text-[11px] text-[#171106] font-normal">
@@ -270,7 +256,7 @@ defineProps({
         </div>
       </div>
 
-      <div v-if="item.key == 'leave'" class="lg:block hidden">
+      <div class="lg:block hidden">
         <div>
           <p class="text-[#9D9B97] text-[11px] font-normal">Approved on</p>
           <p class="text-[11px] text-[#171106] font-normal">
@@ -283,7 +269,7 @@ defineProps({
         </div>
       </div>
 
-      <div v-if="item.key == 'leave'" class="lg:block hidden">
+      <div class="lg:block hidden">
         <div>
           <p class="text-[#9D9B97] text-[11px] font-normal">Duration</p>
           <p
@@ -300,8 +286,7 @@ defineProps({
 
       <div
         class="lg:flex items-center gap-1 cursor-pointer hidden"
-        v-if="item.key == 'leave'"
-        @click="showNoteHandler(item.id)"
+        @click="emit('timeoffDetails', item.id)"
       >
         <svg
           width="17"
@@ -325,7 +310,7 @@ defineProps({
         </div>
       </div>
     </div>
-    
+
     <div v-if="data.length === 0 && !loading">
       <div class="flex py-8 justify-center">
         <img src="~/assets/images/envelop.svg" class="object-contain" />
@@ -343,7 +328,7 @@ defineProps({
     <!-- pagination -->
     <div
       class="lg:flex md:flex block gap-8 items-center mb-10 pr-12"
-      v-if="leaves.length > 0"
+      v-if="data.length > 10 && !loading"
     >
       <div class="lg:flex md:flex block items-baseline gap-4 w-full px-4">
         <p
@@ -353,13 +338,25 @@ defineProps({
         </p>
         <div class="select-number">
           <select
-            v-model="filterAttendance.per_page"
-            @change="listAllLeaves(filterAttendance)"
+            class="text-dark dark:text-light px-3.5 py-2.5 rounded-md text-sm md:text-base outline-none w-[60px]"
+            v-model="filterData.per_page"
+            @change="
+              emit('paginate', {
+                per_page: filterData.per_page,
+              })
+            "
           >
-            <option value="10">10</option>
-            <option value="15">15</option>
-            <option value="20">20</option>
-            <option value="25">25</option>
+            <option
+              v-for="item in perPageList"
+              :key="item"
+              :value="item"
+              class="text-sm !p-0"
+            >
+              <span
+                >{{ Number(item) }}
+                <i class="fi fi-rr-angle-small-down !text-red-500"></i
+              ></span>
+            </option>
           </select>
         </div>
       </div>
@@ -381,9 +378,9 @@ defineProps({
             @click="
               pagination.currentPage == 1
                 ? null
-                : listAllLeaves({
+                : emit('paginate', {
                     page: pagination.currentPage - 1,
-                    per_page: filterAttendance.per_page,
+                    per_page: filterData.per_page,
                   })
             "
           >
@@ -411,9 +408,9 @@ defineProps({
             @click="
               pagination.currentPage == pagination.lastPage
                 ? null
-                : listAllAttendance({
+                : emit('paginate', {
                     page: pagination.currentPage + 1,
-                    per_page: filterAttendance.per_page,
+                    per_page: filterData.per_page,
                   })
             "
             href="#"

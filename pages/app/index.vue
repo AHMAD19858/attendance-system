@@ -19,6 +19,8 @@ const toast = useToast();
 let baseURL = useRuntimeConfig().public.apiBase;
 const employeeLoading = ref(false);
 const attendanceLoading = ref(false);
+const leavesLoading = ref(false);
+const sheetsLoading = ref(false);
 const clockinData = ref({});
 const clockinDetailsModal = ref(false);
 const timeoffDetailsModal = ref(false);
@@ -26,13 +28,19 @@ const timeoffModal = ref(false);
 const addLoading = ref(false);
 const employeeData = ref({});
 const attendance = ref([]);
-const leaveAttendance = ref([]);
+const leavesAttendance = ref([]);
 const sheetAttendance = ref([]);
 const date = ref();
 const timeoffDate = ref();
 const timeofftime = ref("");
 const formSubmit = ref(null);
 const selectedType = ref(false);
+const leavesPagination = reactive({
+  currentPage: 1,
+  total: "",
+  lastPage: 1,
+  perPage: "",
+});
 const pagination = reactive({
   currentPage: 1,
   total: "",
@@ -174,8 +182,49 @@ async function listAllAttendance(body) {
 }
 listAllAttendance(filterAttendance);
 
+async function listAllLeaves(body) {
+  leavesLoading.value = true;
+  let formData = new FormData();
+  formData.append("user_id", user.id);
+  if (user.role.title === "Employee") {
+    formData.append("employee_id", user.id);
+    formData.append("created_to_id", user.id);
+  }
+
+  for (let key in body) {
+    formData.append(key, body[key]);
+  }
+  const res = await fetch(baseURL + "times_off/index", {
+    method: "POST",
+    headers: {
+      "Auth-Token": token,
+    },
+    body: formData,
+    redirect: "follow",
+  });
+  const leavesData = await res.json();
+  if (res.ok) {
+    leavesLoading.value = false;
+    leavesAttendance.value = leavesData.data.data;
+    leavesPagination.currentPage = leavesData.data.current_page;
+    leavesPagination.lastPage = leavesData.data.last_page;
+    leavesPagination.perPage = leavesData.data.per_page;
+    leavesPagination.total = leavesData.data.total;
+
+    return res;
+  } else {
+    leavesLoading.value = false;
+    throw {
+      status: res.ok,
+      code: res.status,
+      message: leavesData.msg,
+    };
+  }
+}
+listAllLeaves(filterAttendance);
+
 async function listTimeSheetAttendance(body) {
-  attendanceLoading.value = true;
+  sheetsLoading.value = true;
   let formData = new FormData();
   formData.append("user_id", user.id);
   if (user.role.title === "Employee") {
@@ -195,7 +244,7 @@ async function listTimeSheetAttendance(body) {
   });
   const attendanceData = await res.json();
   if (res.ok) {
-    attendanceLoading.value = false;
+    sheetsLoading.value = false;
     sheetAttendance.value = attendanceData.data.attendance_days.data;
     pagination.currentPage = attendanceData.data.attendance_days.current_page;
     pagination.lastPage = attendanceData.data.attendance_days.last_page;
@@ -204,7 +253,7 @@ async function listTimeSheetAttendance(body) {
 
     return res;
   } else {
-    attendanceLoading.value = false;
+    sheetsLoading.value = false;
     throw {
       status: res.ok,
       code: res.status,
@@ -213,6 +262,7 @@ async function listTimeSheetAttendance(body) {
   }
 }
 listTimeSheetAttendance(filterAttendance);
+
 const onRangeStart = (value) => {
   const formatDate = (inputDate) => {
     const date = new Date(inputDate);
@@ -384,12 +434,23 @@ async function showTimeOff(id) {
         :pagination="pagination"
         :perPageList="[5, 10, 15, 20, 30, 50]"
       />
-
+      <AppAttendanceLeaves
+        v-if="activeTab === 'Leaves'"
+        :headers="headers"
+        :data="leavesAttendance"
+        :loading="leavesLoading"
+        :filterData="filterAttendance"
+        @paginate="listAllLeaves"
+        @clockinDetails="showClockinNoteHandler"
+        @timeoffDetails="showTimeOff"
+        :pagination="leavesPagination"
+        :perPageList="[5, 10, 15, 20, 30, 50]"
+      />
       <AppAttendanceTimeSheet
         v-if="activeTab === 'Timesheets'"
         :headers="headers"
         :data="sheetAttendance"
-        :loading="attendanceLoading"
+        :loading="sheetsLoading"
         :filterData="filterAttendance"
         @paginate="listTimeSheetAttendance"
         @clockinDetails="showClockinNoteHandler"

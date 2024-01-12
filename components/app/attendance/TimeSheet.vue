@@ -268,8 +268,7 @@ Not Clockout
             </p>
             <div class="select-number">
               <select
-          class=" text-dark dark:text-light px-3.5 py-2.5 rounded-md text-sm md:text-base outline-none w-[50px]"
-
+            class="text-dark dark:text-light px-3.5 py-2.5 rounded-md text-sm md:text-base outline-none w-[60px]"
             v-model="filterData.per_page"
             @change="
               emit('paginate', {
@@ -284,12 +283,10 @@ Not Clockout
               class="text-sm !p-0"
             >
               <span
-                >{{ Number(item) }} <i class="fi fi-rr-angle-small-down !text-red-500"></i
+                >{{ Number(item) }}
+                <i class="fi fi-rr-angle-small-down !text-red-500"></i
               ></span>
             </option>
-            <!--            <option value="15">15</option>
-            <option value="20">20</option>
-            <option value="25">25</option> -->
           </select>
             </div>
           </div>

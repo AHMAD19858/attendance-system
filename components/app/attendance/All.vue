@@ -556,7 +556,7 @@ defineProps({
           No result found
         </p>
         <p class="text-center font-primary text-base text-black">
-          no log available on the date range selected
+          No logs available 
         </p>
       </div>
     </div>
