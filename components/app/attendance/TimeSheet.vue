@@ -17,7 +17,7 @@ defineProps({
 });
 </script>
 <template>
-  <div class="bg-white lg:h-fit h-screen">
+   <div class="bg-white">
         <!-- header -->
         <div
           :class="`grid-cols-${headers?.length}`"

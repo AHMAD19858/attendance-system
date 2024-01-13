@@ -386,7 +386,7 @@ async function showTimeOff(id) {
 }
 </script>
 <template>
-  <div class="grid grid-cols-12 w-full items-start justify-center lg:h-screen">
+  <div class="grid grid-cols-12 w-full items-start justify-center h-screen overflow-auto lg:h-screen">
     <AppUserInfo :employeeData="employeeData" :loading="employeeLoading" />
 
     <div class="dashboard">
@@ -1000,7 +1000,7 @@ async function showTimeOff(id) {
 
 <style scoped>
 .dashboard {
-  @apply col-span-12 lg:col-span-10 bg-white lg:h-screen pt-10 mb-10 !justify-center px-6 lg:px-0;
+  @apply !h-screen col-span-12 lg:col-span-10 bg-white lg:h-screen pt-10 mb-10 !justify-center px-6 lg:px-0;
 }
 .info-section {
   @apply bg-white   h-fit py-4 mb-5 w-full;

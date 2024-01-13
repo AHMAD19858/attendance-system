@@ -25,7 +25,7 @@ defineProps({
           ? `grid-cols-8 lg:grid-cols-6 grid-rows-${data.length} bg-[#F7F7F6]  py-0 border-l-danger border-l-4`
           : `grid-cols-8 lg:grid-cols-6 grid-rows-${data.length} bg-[#F7F7F6]  py-0 border-l-primary border-l-4`
       "
-      class="lg:grid items-center gap-10 ml-3 lg:ml-0 border lg:border-t-0 lg:border-r-0 lg:border-l-0 border-b my-4 lg:my-0 font-primary font-normal text-sm text-[#9D9B97]"
+      class="!rounded-lg py-2 lg:py-0 lg:rounded-none  lg:grid items-center gap-10 ml-3 lg:ml-0 border lg:border-t-0 lg:border-r-0 lg:border-l-0 border-b my-4 lg:my-0 font-primary font-normal text-sm text-[#9D9B97]"
     >
       <div class="block">
         <div
