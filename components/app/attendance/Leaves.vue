@@ -12,7 +12,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="bg-white">
+  <div class="bg-white lg:h-fit h-screen">
     <!-- employee leaves -->
     <div
       v-if="data.length > 0"
@@ -29,7 +29,7 @@ defineProps({
     >
       <div class="block">
         <div
-          class="flex items-center gap-2 w-full border-r lg:h-16 lg:border-l-4 pl-1 border-l-primary lg:border-solid border-none py-1"
+          class="flex items-center justify-between gap-2 w-full border-r lg:h-16 lg:border-l-4 pl-1 border-l-primary lg:border-solid border-none py-1"
           :class="
             item.approval_status == 'pending'
               ? '!border-l-warning'
@@ -38,7 +38,8 @@ defineProps({
               : '!border-l-primary'
           "
         >
-          <div class="border rounded-[20px] px-1 border-[#171106]">
+        <div class="flex gap-2 items-center">
+          <div class="border rounded-[20px] px-1 border-[#171106] ml-2">
             <p class="text-[#171106] text-xs font-normal font-primary mx-[2px]">
               {{ moment(item.choosed_date).format("dddd").slice(0, 3) }}
             </p>
@@ -49,10 +50,11 @@ defineProps({
               {{ moment(item.choosed_date).format("MMM Do YYYY") }}
             </p>
           </div>
+         </div>
 
           <svg
             @click="emit('timeoffDetails', item.id)"
-            class="ml-20 lg:hidden"
+            class="mr-2 lg:hidden"
             width="16"
             height="16"
             viewBox="0 0 16 21"
@@ -104,7 +106,7 @@ defineProps({
         </div>
       </div>
 
-      <div class="lg:hidden block px-4">
+      <div class="lg:hidden block px-4"  v-if="item.end_date">
         <svg
           class="my-2"
           width="10"
@@ -121,11 +123,12 @@ defineProps({
       </div>
 
       <div
+      v-if="item.end_date"
         class="lg:hidden flex items-center gap-2 w-full border-r lg:border-l-4 pl-1 border-l-primary border-gray-300"
       >
         <div class="border rounded-[20px] px-1 border-[#171106]">
           <p class="text-[#171106] text-xs font-normal font-primary mb-1">
-            {{ moment(item.end_date).format("dddd").slice(0, 3) }}
+          {{ moment(item.end_date).format("dddd").slice(0, 3) }}
           </p>
         </div>
 
@@ -384,18 +387,7 @@ defineProps({
                   })
             "
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
+            <i class="fi fi-rr-angle-left !text-xs"></i>
           </a>
         </li>
 
@@ -416,18 +408,7 @@ defineProps({
             href="#"
             class="inline-flex h-10 w-10 hover:bg-slate-200 text-base items-center justify-center rounded-lg bg-transparent text-gray-900 rtl:rotate-180"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
+            <i class="fi fi-rr-angle-right !text-xs"></i>
           </a>
         </li>
       </ol>

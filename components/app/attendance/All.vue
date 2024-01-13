@@ -53,7 +53,7 @@ defineProps({
         class="flex justify-between items-center gap-1 w-full px-2 lg:px-0 py-4"
         v-if="item.key !== 'leave'"
       >
-        <div class="flex gap-2 ">
+        <div class="flex gap-2 items-center">
           <div class="border rounded-[20px] px-1 border-[#171106] h-fit">
             <p class="text-[#171106] text-xs font-normal font-primary mx-[2px]">
               {{

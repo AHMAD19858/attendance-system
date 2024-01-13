@@ -17,7 +17,7 @@ defineProps({
 });
 </script>
 <template>
-   <div class="bg-white">
+  <div class="bg-white lg:h-fit h-screen">
         <!-- header -->
         <div
           :class="`grid-cols-${headers?.length}`"
@@ -42,26 +42,28 @@ defineProps({
               ? `grid-cols-${headers.length} grid-rows-${data.length} px-2`
               : `grid-cols-8 lg:grid-cols-6 grid-rows-7 bg-[#F7F7F6]  py-0 border-l-primary border-l-4 lg:py-0`
           "
-          class="lg:grid items-center gap-10 ml-3 lg:ml-0 border lg:border-t-0 lg:border-r-0 lg:border-l-0 border-b my-4 lg:my-0 font-primary font-normal text-sm py-2 text-[#9D9B97]"
+          class="rounded-lg lg:rounded-none  lg:grid items-center gap-10 ml-3 lg:ml-0 border lg:border-t-0 lg:border-r-0 lg:border-l-0 border-b my-4 lg:my-0 font-primary font-normal text-sm py-2 text-[#9D9B97]"
         
           >
           <div
-            class="flex items-center gap-2 w-full px-2 lg:px-0 py-4"
+            class="flex items-center justify-between gap-2 w-full px-2 lg:px-0 py-4"
             v-if="item.key !== 'leave'"
           >
-            <div class="border rounded-[20px] px-1 border-[#171106]">
+          <div class="flex gap-2 items-center">
+            <div class="border rounded-[20px] px-1 border-[#171106] h-fit">
               <p
                 class="text-[#171106] text-xs font-normal font-primary mx-[2px]"
               >
                 {{ moment(item.clock_in.replace(/-/g, "/")).format("dddd").slice(0, 3) }}
               </p>
             </div>
-
             <div class="block">
               <p class="text-[#171106] text-[13px]  font-primary">
                 {{ moment(item.clock_in.replace(/-/g, "/")).format("MMM Do YYYY") }}
               </p>
             </div>
+            </div>
+
 
             <svg
             @click="emit('clockinDetails',item)"
@@ -119,7 +121,7 @@ Not Clockout</p>
                 <p class="text-[#171106] text-[13px] font-normal">
                   {{ section.total_hours }} hrs
                 </p>
-                <p class="text-center text-[11px]">
+                <p class="text-start text-[11px]">
                   {{ section.clock_in }} - {{ section.clock_out}}
                 </p>
               </div>
@@ -130,7 +132,7 @@ Not Clockout</p>
               </div>
             </div>
 
-            <div class="w-1/2 px-4">
+            <div class="w-1/2">
               <p class="text-[11px]">Work hours</p>
               <div class="py-2 text-[#171106] font-primary font-medium text-sm">
                 {{ item.total_hours === 0 ? "-" : item.total_hours + " Hours" }}
@@ -165,9 +167,9 @@ Not Clockout</p>
             </p>
             <p v-else class="flex items-center gap-1 text-danger "> 
 
-<i class="fi fi-rr-info pt-1  !text-xs"></i>
-Not Clockout
-</p>
+            <i class="fi fi-rr-info pt-1  !text-xs"></i>
+            Not Clockout
+            </p>
             </p>
           </div>
 
@@ -217,7 +219,7 @@ Not Clockout
           </div>
           <div class="hidden lg:flex" v-if="item.key !== 'leave'">
             <p class="text-[#171106] font-primary text-sm whitespace-pre">
-              {{ item.overtime === 0 ? "-" : item.overtime + " Hours" }}
+              {{ item.overtime === '0' ? "-" : item.overtime + " Hours" }}
             </p>
           </div>
           <div class="hidden lg:flex" v-if="item.key !== 'leave'">

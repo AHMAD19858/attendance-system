@@ -24,6 +24,7 @@ const sheetsLoading = ref(false);
 const clockinData = ref({});
 const clockinDetailsModal = ref(false);
 const timeoffDetailsModal = ref(false);
+const timeoffDetailsLoading = ref(false);
 const timeoffModal = ref(false);
 const addLoading = ref(false);
 const employeeData = ref({});
@@ -356,6 +357,7 @@ async function addTimeOffHandler() {
 }
 async function showTimeOff(id) {
   timeoffDetailsModal.value = true;
+  timeoffDetailsLoading.value = true;
 
   let formData = new FormData();
   formData.append("user_id", user.id);
@@ -372,7 +374,7 @@ async function showTimeOff(id) {
   const response = await res.json();
   if (res.ok) {
     requestData.value = response.model;
-
+    timeoffDetailsLoading.value = false;
     return res;
   } else {
     throw {
@@ -391,7 +393,7 @@ async function showTimeOff(id) {
       <div class="block lg:flex justify-between items-center mx-8 mb-2">
         <div>
           <nav
-            class="bg-[#E6E5E4] lg:w-full items-center block lg:flex w-full rounded-lg px-[2px] py-[2px] my-2 gap-3"
+            class="bg-[#E6E5E4] lg:h-10 lg:w-full items-center block lg:flex w-full rounded-lg px-[2px] py-[2px] my-2 gap-3"
           >
             <button
               v-for="(tab, index) in tabs"
@@ -415,7 +417,7 @@ async function showTimeOff(id) {
               resetForm();
               timeoffModal = true;
             "
-            class="bg-transparent hover:bg-transparent/5 w-full my-5 lg:my-0 border border-[#444443] text-[#171106] rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
+            class="bg-transparent hover:bg-transparent/5 w-full my-5 lg:h-10 lg:my-0 border border-[#444443] text-[#171106] rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
           >
             Add time off
           </button>
@@ -826,17 +828,37 @@ async function showTimeOff(id) {
               class="flex justify-between -2 px-4 bg-[#F7F7F6] rounded-lg py-4 items-center mt-5"
             >
               <div class="flex gap-2 items-center">
+                <span
+                  class="sk-loader w-12 h-12 !rounded-full"
+                  v-if="timeoffDetailsLoading"
+                ></span>
                 <img
+                  v-if="!timeoffDetailsLoading"
                   :src="requestData.created_by?.image"
                   alt=""
                   class="w-12 h-12 rounded-full"
                 />
+
                 <div>
-                  <p class="font-primary text-base font-medium text-[#171106]">
+                  <span
+                    v-if="timeoffDetailsLoading"
+                    class="sk-loader w-full rounded-md h-5"
+                  ></span>
+                  <span
+                    v-if="timeoffDetailsLoading"
+                    class="sk-loader w-full rounded-md h-5"
+                  ></span>
+                  <p
+                    v-if="!timeoffDetailsLoading"
+                    class="font-primary text-base font-medium text-[#171106]"
+                  >
                     {{ requestData.created_by?.first_name }}
                     {{ requestData.created_by?.last_name }}
                   </p>
-                  <p class="font-primary text-[13px] font-light text-[#6E7A84]">
+                  <p
+                    v-if="!timeoffDetailsLoading"
+                    class="font-primary text-[13px] font-light text-[#6E7A84]"
+                  >
                     {{ requestData.created_by?.job_title }}
                   </p>
                 </div>
@@ -868,7 +890,14 @@ async function showTimeOff(id) {
                   Time off type
                 </p>
                 <div class="">
-                  <p class="font-medium font-primary text-sm text-[#171106]">
+                  <span
+                    class="sk-loader w-20 !h-5"
+                    v-if="timeoffDetailsLoading"
+                  ></span>
+                  <p
+                    v-if="!timeoffDetailsLoading"
+                    class="font-medium font-primary text-sm text-[#171106]"
+                  >
                     {{ requestData.status }}
                   </p>
                 </div>
@@ -878,15 +907,21 @@ async function showTimeOff(id) {
                   Duration
                 </p>
                 <div>
+                  <span
+                    class="sk-loader w-20 !h-5"
+                    v-if="timeoffDetailsLoading"
+                  ></span>
                   <p
                     class="font-medium font-primary text-sm text-[#171106]"
-                    v-if="requestData.status !== 'hours'"
+                    v-if="
+                      requestData.status !== 'hours' && !timeoffDetailsLoading
+                    "
                   >
                     {{ requestData.duration }} days
                   </p>
                   <p
                     class="font-medium font-primary text-sm text-[#171106]"
-                    v-else
+                    v-if="!timeoffDetailsLoading"
                   >
                     {{ requestData.hours }} hours
                   </p>
@@ -898,7 +933,14 @@ async function showTimeOff(id) {
                 <p class="font-primary font-light text-[#6E7A84] text-[13px]">
                   Time off date
                 </p>
-                <p class="font-medium font-primary text-sm text-[#171106]">
+                <span
+                  class="sk-loader w-20 !h-5"
+                  v-if="timeoffDetailsLoading"
+                ></span>
+                <p
+                  v-if="!timeoffDetailsLoading"
+                  class="font-medium font-primary text-sm text-[#171106]"
+                >
                   {{
                     requestData.choosed_date === null
                       ? "-"
@@ -919,7 +961,14 @@ async function showTimeOff(id) {
                   <p class="font-primary font-light text-[#6E7A84] text-[13px]">
                     Remaining hours
                   </p>
-                  <p class="font-medium font-primary text-sm text-[#171106]">
+                  <span
+                    class="sk-loader w-20 !h-5"
+                    v-if="timeoffDetailsLoading"
+                  ></span>
+                  <p
+                    v-if="!timeoffDetailsLoading"
+                    class="font-medium font-primary text-sm text-[#171106]"
+                  >
                     {{ requestData.used_hours_this_month }} hours
                   </p>
                 </template>
@@ -930,7 +979,14 @@ async function showTimeOff(id) {
               <p class="font-primary text-base font-medium text-[#171106]">
                 Time off reason
               </p>
-              <p class="font-primary text-[13px] font-light text-[#6E7A84]">
+              <span
+                class="sk-loader w-20 !h-5"
+                v-if="timeoffDetailsLoading"
+              ></span>
+              <p
+                v-if="!timeoffDetailsLoading"
+                class="font-primary text-[13px] font-light text-[#6E7A84]"
+              >
                 {{ requestData.reason }}
               </p>
             </div>
@@ -944,7 +1000,7 @@ async function showTimeOff(id) {
 
 <style scoped>
 .dashboard {
-  @apply col-span-10 bg-white lg:h-screen pt-10 mb-10;
+  @apply col-span-12 lg:col-span-10 bg-white lg:h-screen pt-10 mb-10 !justify-center px-6 lg:px-0;
 }
 .info-section {
   @apply bg-white   h-fit py-4 mb-5 w-full;
