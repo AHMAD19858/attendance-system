@@ -386,7 +386,9 @@ async function showTimeOff(id) {
 }
 </script>
 <template>
-  <div class="grid grid-cols-12 w-full items-start justify-center h-screen overflow-auto lg:h-screen">
+  <div
+    class="grid grid-cols-12 w-full items-start justify-center "
+  >
     <AppUserInfo :employeeData="employeeData" :loading="employeeLoading" />
 
     <div class="dashboard">

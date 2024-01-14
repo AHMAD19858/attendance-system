@@ -78,7 +78,7 @@ defineProps({
           "
           v-if="item.status !== 'hours'"
         >
-          <div class="border rounded-[20px] px-1 border-[#171106]">
+          <div class="border rounded-[20px] px-1 border-[#171106] ml-2">
             <p class="text-[#171106] text-xs font-normal font-primary mx-[2px]">
               {{ moment(item.end_date).format("dddd").slice(0, 3) }}
             </p>
