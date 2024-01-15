@@ -1,5 +1,5 @@
 <script setup>
- const googleUrl = useRuntimeConfig().public.google;
+const googleUrl = useRuntimeConfig().public.google;
 definePageMeta({
   layout: "employee",
   middleware: ["auth"],
@@ -60,6 +60,33 @@ const actionLoading = ref(false);
 const latitude = ref(null);
 const longitude = ref(null);
 const address = ref(null);
+var elapsedTime = ref(0);
+var clockDate = ref(null);
+var breakTimeInMin = ref(0);
+var overTimeInMin = ref(0);
+var workTimeInMin = ref(0);
+function updateTimer() {
+  elapsedTime.value++;
+}
+
+function formatTime(totalSeconds) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
+}
+
+let timer;
+
+onMounted(async () => {
+  timer = setInterval(updateTimer, 1000);
+});
+
+onUnmounted(() => {
+  clearInterval(timer);
+});
 const leavesPagination = reactive({
   currentPage: 1,
   total: "",
@@ -385,8 +412,8 @@ async function clockHandler(type) {
   if (res.ok) {
     if (type == "in") {
       checkAction().then(() => {
-        /*  clockDate.value = checkData.value.clock_in;
-          elapsedTime.value = 0; */
+        clockDate.value = checkData.value.clock_in;
+        elapsedTime.value = 0;
       });
       toast.success("clocked in successfully");
     }
@@ -727,75 +754,106 @@ var amOrPm = timeString.slice(-2);
           </button>
         </div>
       </div>
-<!-- user  timeline  details-->
-      <div class="lg:flex justify-between items-center  mx-8 my-2 mt-4">
-          <div class="flex gap-2 py-2 lg:py-0">
-            <p
-              class="font-normal text-base text-warning font-primary"
-              v-if="
-                checkData.break_out === null &&
-                checkData.break_in !== null &&
-                checkData.clock_in !== null &&
-                checkData.clock_out == null
-              "
-            >
-              You are in a break
-            </p>
-            <p
-              class="font-normal text-base text-success font-primary"
-              v-else-if="
-                checkData.clock_out === null && checkData.clock_in !== null
-              "
-            >
-              You are clocked in
-            </p>
+      <!-- user  timeline  details-->
+      <div class="lg:flex justify-between items-center mx-8 my-2 mt-4">
+        <div
+          class="flex gap-2 py-2 lg:py-0 justify-center"
+          v-if="checkData.clock_in !== null && checkData.clock_out === null"
+        >
+          <p
+            class="font-normal text-base text-warning font-primary"
+            v-if="
+              checkData.break_out === null &&
+              checkData.break_in !== null &&
+              checkData.clock_in !== null &&
+              checkData.clock_out == null
+            "
+          >
+            You are in a break
+          </p>
+          <p
+            class="font-normal text-base text-success font-primary"
+            v-else-if="
+              checkData.clock_out === null && checkData.clock_in !== null
+            "
+          >
+            You are clocked in
+          </p>
 
-            <p class="font-normal text-base text-success" v-else>
-              clock in to start
-            </p>
+          <p class="font-normal text-base text-success" v-else>
+            Clock in to start
+          </p>
 
-            <div class="border-l border-l-[#AEACA8] h-4 my-1"></div>
-            <p class="font-medium text-xl text-[#171106]">
-              {{
-                checkData.clock_out === null && checkData.clock_in !== null
-                  ? formatTime(elapsedTime)
-                  : "00:00:00"
-              }}
-            </p>
-          </div>
-
-          <div class="flex gap-2 items-center py-2 lg:py-0" >
-            <div class="w-2 h-2 bg-success rounded-sm"></div>
-            <p class="font-normal text-[13px] lg:text-sm text-[#171106]"
-             v-if="checkData.clock_out !== null">
-             
-             Worktime: {{sheetAttendance[0]?.total_hours}} hrs
-           </p>
-            <p class="font-normal text-[13px] lg:text-sm text-[#171106]" v-else>
-             
-              Worktime: {{ Math.floor(workTimeInMin/60)  }} hrs
-            </p>
-            <div class="border-l border-l-gray-500 h-4"></div>
-            <div class="w-2 h-2 bg-warning rounded-sm"></div>
-            <p class="font-normal text-[13px] lg:text-sm text-[#171106]" v-if="checkData.clock_in === null && checkData.clock_out === null">
-              Breaktime: 0 hrs
-            </p>
-            <p class="font-normal text-[13px] lg:text-sm text-[#171106]" v-else>
-              Breaktime: {{sheetAttendance[0]?.breaks_total_hours}} hrs
-            </p>
-            <div class="border-l border-l-gray-500 h-4"></div>
-            <div class="w-2 h-2 bg-primary rounded-sm"></div>
-            <p class="font-normal text-[13px] lg:text-sm text-[#171106]">
-              Overtime: {{ Number((overTimeInMin/60).toFixed(1))}} hrs
-            </p>
-          </div>
+          <div class="border-l border-l-[#AEACA8] h-4 my-1"></div>
+          <p class="font-medium text-xl text-[#171106]">
+            {{
+              checkData.clock_out === null && checkData.clock_in !== null
+                ? formatTime(elapsedTime)
+                : "00:00:00"
+            }}
+          </p>
         </div>
+        <!--         <span
+            class="sk-loader w-[20%] rounded-md"
+            style="height: 20px"
+         v-if="actionLoading"
+          ></span> -->
+        <div v-if="checkData.clock_in !== null && !actionLoading">
+          <p class="text-sm font-primary text-[#9D9B97]">
+            You've clocked in today at :
+            {{
+              new Date(checkData.clock_in)?.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            }}
+          </p>
+        </div>
+        <div
+          class="flex gap-2 items-center py-2 lg:py-0"
+          v-if="checkData.clock_in !== null && !actionLoading"
+        >
+          <div class="w-2 h-2 bg-success rounded-sm"></div>
+          <p
+            class="font-normal text-[13px] lg:text-sm text-[#171106]"
+            v-if="checkData.clock_out !== null"
+          >
+            Worktime:<span
+              class="sk-loader w-4"
+              style="height: 20px"
+              v-if="sheetsLoading"
+            ></span>
+            {{ sheetAttendance[0].total_hours?sheetAttendance[0].total_hours + ' hrs':'0hrs' }}
+          </p>
+          <p class="font-normal text-[13px] lg:text-sm text-[#171106]" v-else>
+            Worktime: {{ Math.floor(workTimeInMin / 60) }} hrs
+          </p>
+          <div class="border-l border-l-gray-500 h-4"></div>
+          <div class="w-2 h-2 bg-warning rounded-sm"></div>
+          <p
+            class="font-normal text-[13px] lg:text-sm text-[#171106]"
+            v-if="checkData.clock_in === null && checkData.clock_out === null"
+          >
+            Breaktime: 0 hrs
+          </p>
+          <p class="font-normal text-[13px] lg:text-sm text-[#171106]" v-else>
+            Breaktime: {{ sheetAttendance[0]?.breaks_total_hours }} hrs
+          </p>
+          <div class="border-l border-l-gray-500 h-4"></div>
+          <div class="w-2 h-2 bg-primary rounded-sm"></div>
+          <p class="font-normal text-[13px] lg:text-sm text-[#171106]">
+            Overtime: {{ Number((overTimeInMin / 60).toFixed(1)) }} hrs
+          </p>
+        </div>
+      </div>
 
       <!-- user  progressbar -->
-       <div  class="singleLog h-3 bg-success rounded-[2px] mx-8 mb-4"   >
-       
-          </div>
+      <div
+        v-if="checkData.clock_in !== null && checkData.clock_out === null"
+        class="singleLog h-3 bg-success rounded-[2px] mx-8 mb-4"
+      ></div>
 
+      <div class="flex"></div>
       <div class="block lg:flex justify-between items-center mx-8 my-2">
         <div>
           <nav
