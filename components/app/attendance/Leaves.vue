@@ -25,7 +25,7 @@ defineProps({
           ? `grid-cols-8 lg:grid-cols-6 grid-rows-${data.length} bg-[#F7F7F6]  py-0 border-l-danger border-l-4`
           : `grid-cols-8 lg:grid-cols-6 grid-rows-${data.length} bg-[#F7F7F6]  py-0 border-l-primary border-l-4`
       "
-      class="!rounded-lg py-2 lg:py-0 lg:rounded-none  lg:grid items-center gap-10 ml-3 lg:ml-0 border lg:border-t-0 lg:border-r-0 lg:border-l-0 border-b my-4 lg:my-0 font-primary font-normal text-sm text-[#9D9B97]"
+      class="!rounded-lg py-2 lg:py-0 lg:rounded-none lg:grid items-center gap-10 ml-3 lg:ml-0 border lg:border-t-0 lg:border-r-0 lg:border-l-0 border-b my-4 lg:my-0 font-primary font-normal text-sm text-[#9D9B97]"
     >
       <div class="block">
         <div
@@ -38,19 +38,21 @@ defineProps({
               : '!border-l-primary'
           "
         >
-        <div class="flex gap-2 items-center">
-          <div class="border rounded-[20px] px-1 border-[#171106] ml-2">
-            <p class="text-[#171106] text-xs font-normal font-primary mx-[2px]">
-              {{ moment(item.choosed_date).format("dddd").slice(0, 3) }}
-            </p>
-          </div>
+          <div class="flex gap-2 items-center">
+            <div class="border rounded-[20px] px-1 border-[#171106] ml-2">
+              <p
+                class="text-[#171106] text-xs font-normal font-primary mx-[2px]"
+              >
+                {{ moment(item.choosed_date).format("dddd").slice(0, 3) }}
+              </p>
+            </div>
 
-          <div class="block">
-            <p class="text-[#171106] text-[13px] font-primary">
-              {{ moment(item.choosed_date).format("MMM Do YYYY") }}
-            </p>
+            <div class="block">
+              <p class="text-[#171106] text-[13px] font-primary">
+                {{ moment(item.choosed_date).format("MMM Do YYYY") }}
+              </p>
+            </div>
           </div>
-         </div>
 
           <svg
             @click="emit('timeoffDetails', item.id)"
@@ -106,7 +108,7 @@ defineProps({
         </div>
       </div>
 
-      <div class="lg:hidden block px-4"  v-if="item.end_date">
+      <div class="lg:hidden block px-4" v-if="item.end_date">
         <svg
           class="my-2"
           width="10"
@@ -123,12 +125,12 @@ defineProps({
       </div>
 
       <div
-      v-if="item.end_date"
+        v-if="item.end_date"
         class="lg:hidden flex items-center gap-2 w-full border-r lg:border-l-4 pl-1 border-l-primary border-gray-300"
       >
         <div class="border rounded-[20px] px-1 border-[#171106]">
           <p class="text-[#171106] text-xs font-normal font-primary mb-1">
-          {{ moment(item.end_date).format("dddd").slice(0, 3) }}
+            {{ moment(item.end_date).format("dddd").slice(0, 3) }}
           </p>
         </div>
 
@@ -330,7 +332,7 @@ defineProps({
     </div>
     <!-- pagination -->
     <div
-      class="lg:flex md:flex block gap-8 items-center mb-10 pr-12"
+      class="lg:flex md:flex flex gap-8 items-center mb-10 pr-12"
       v-if="data.length > 10 && !loading"
     >
       <div class="lg:flex md:flex block items-baseline gap-4 w-full px-4">
@@ -346,6 +348,8 @@ defineProps({
             @change="
               emit('paginate', {
                 per_page: filterData.per_page,
+                date_from: filterData.date_from,
+                date_to: filterData.date_to,
               })
             "
           >
@@ -368,7 +372,7 @@ defineProps({
         Page {{ pagination.currentPage }} of {{ pagination.lastPage }}
       </p>
       <ol
-        class="lg:flex md:flex block justify-center text-xs font-medium my-6"
+        class="lg:flex md:flex flex justify-end text-xs font-medium my-6"
         v-if="pagination.lastPage > 1"
       >
         <li>
@@ -384,6 +388,8 @@ defineProps({
                 : emit('paginate', {
                     page: pagination.currentPage - 1,
                     per_page: filterData.per_page,
+                    date_from: filterData.date_from,
+                    date_to: filterData.date_to,
                   })
             "
           >
@@ -403,6 +409,8 @@ defineProps({
                 : emit('paginate', {
                     page: pagination.currentPage + 1,
                     per_page: filterData.per_page,
+                    date_from: filterData.date_from,
+                    date_to: filterData.date_to,
                   })
             "
             href="#"

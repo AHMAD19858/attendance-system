@@ -100,7 +100,9 @@ html{
 
   }
 }
-
+.dp__btn {
+  @apply font-semibold;
+}
 .dp__range_between {
   background: #d9efff;
 }
@@ -109,6 +111,10 @@ html{
 }
 .dp__pointer {
   @apply rounded-full #{!important}
+}
+.dp__input{
+  @apply rounded-lg #{!important}
+  
 }
 .dp__today {
   @apply rounded-full #{!important}
@@ -127,6 +133,9 @@ html{
   @apply rounded-lg #{!important}
 }
 
+.dp__btn{
+@apply  font-primaryRegular #{!important}
+}
 select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");

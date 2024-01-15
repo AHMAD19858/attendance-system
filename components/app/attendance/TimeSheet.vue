@@ -259,12 +259,12 @@ Not Clockout</p>
         </div>
         <!-- pagination -->
         <div
-          class="lg:flex md:flex block gap-8 items-center mb-10 pr-12"
+          class="lg:flex md:flex flex gap-8 items-center mb-10 pr-12"
           v-if="data.length > 0 && !loading"
         >
-          <div class="lg:flex md:flex block items-baseline gap-4 w-full px-4">
+        <div class="lg:flex md:flex block items-baseline gap-4 w-full px-4">
             <p
-              class="text-center py-2 mt-3 text-[#93A3B0] text-sm font-normal font-primary"
+              class=" hidden lg:block text-center py-2 mt-3 text-[#93A3B0] text-sm font-normal font-primary"
             >
               Show rows per page
             </p>
@@ -275,6 +275,8 @@ Not Clockout</p>
             @change="
               emit('paginate', {
                 per_page: filterData.per_page,
+                date_from: filterData.date_from,
+                date_to: filterData.date_to,
               })
             "
           >
@@ -297,7 +299,7 @@ Not Clockout</p>
             Page {{ pagination.currentPage }} of {{ pagination.lastPage }}
           </p>
           <ol
-            class="lg:flex md:flex block justify-center text-xs font-medium my-6"
+          class="lg:flex md:flex flex justify-end text-xs font-medium my-6"
             v-if="pagination.lastPage > 1"
           >
             <li>
@@ -307,13 +309,15 @@ Not Clockout</p>
                     pagination.currentPage == 1,
                 }"
                 href="#"
-                class="inline-flex h-10 w-10 text-base hover:bg-slate-200 items-center justify-center rounded-lg bg-transparent text-black rtl:rotate-180"
+                class="lg:inline-flex flex h-10 w-10 text-base hover:bg-slate-200 items-center justify-center rounded-lg bg-transparent text-black rtl:rotate-180"
                 @click="
                   pagination.currentPage == 1
                     ? null
                     :  emit('paginate', {
                     page: pagination.currentPage - 1,
                     per_page: filterData.per_page,
+                    date_from: filterData.date_from,
+                    date_to: filterData.date_to,
                   })
                 "
               >
@@ -333,10 +337,12 @@ Not Clockout</p>
                     :  emit('paginate', {
                     page: pagination.currentPage + 1,
                     per_page: filterData.per_page,
+                    date_from: filterData.date_from,
+                    date_to: filterData.date_to,
                   })
                 "
                 href="#"
-                class="inline-flex h-10 w-10 hover:bg-slate-200 text-base items-center justify-center rounded-lg bg-transparent text-gray-900 rtl:rotate-180"
+                class="lg:inline-flex flex h-10 w-10 text-base hover:bg-slate-200 items-center justify-center rounded-lg bg-transparent text-black rtl:rotate-180"
               >
                 <i class="fi fi-rr-angle-right !text-xs"></i>
               </a>

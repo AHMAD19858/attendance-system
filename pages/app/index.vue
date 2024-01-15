@@ -9,6 +9,15 @@ import { Field, Form, defineRule, ErrorMessage, configure } from "vee-validate";
 import { required, email, regex, min_value } from "@vee-validate/rules";
 import { localize } from "@vee-validate/i18n";
 import { useToast } from "vue-toastification";
+import {
+  endOfMonth,
+  startOfMonth,
+  subMonths,
+  subDays,
+  startOfWeek,
+  endOfWeek,
+  subWeeks,
+} from "date-fns";
 
 defineRule("required", required);
 defineRule("email", email);
@@ -27,6 +36,7 @@ const timeoffDetailsModal = ref(false);
 const timeoffDetailsLoading = ref(false);
 const timeoffModal = ref(false);
 const addLoading = ref(false);
+const checkData = ref({});
 const employeeData = ref({});
 const attendance = ref([]);
 const leavesAttendance = ref([]);
@@ -36,6 +46,7 @@ const timeoffDate = ref();
 const timeofftime = ref("");
 const formSubmit = ref(null);
 const selectedType = ref(false);
+const actionLoading = ref(false);
 const leavesPagination = reactive({
   currentPage: 1,
   total: "",
@@ -264,6 +275,33 @@ async function listTimeSheetAttendance(body) {
 }
 listTimeSheetAttendance(filterAttendance);
 
+async function checkAction() {
+  actionLoading.value = true;
+  let formData = new FormData();
+  formData.append("user_id", user.id);
+  const res = await fetch(baseURL + "attendances/check-in-out", {
+    method: "POST",
+    headers: {
+      "Auth-Token": token,
+    },
+    body: formData,
+    redirect: "follow",
+  });
+  const response = await res.json();
+  if (res.ok) {
+    actionLoading.value = false;
+    checkData.value = response.data;
+    return res;
+  } else {
+    actionLoading.value = false;
+    throw {
+      status: res.ok,
+      code: res.status,
+      message: response.msg,
+    };
+  }
+}
+checkAction();
 const onRangeStart = (value) => {
   const formatDate = (inputDate) => {
     const date = new Date(inputDate);
@@ -276,6 +314,30 @@ const onRangeStart = (value) => {
   filterAttendance.date_from = formattedDate;
   form.choosed_date = formattedDate;
 };
+const onRangeEnd = (value) => {
+  const formatDate = (inputDate) => {
+    const date = new Date(inputDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+  const formattedDate = formatDate(value);
+  filterAttendance.date_to = formattedDate;
+  listAllLeaves(filterAttendance);
+  listAllAttendance(filterAttendance);
+  listTimeSheetAttendance(filterAttendance);
+};
+function ClearFilter() {
+  filterAttendance = {
+    per_page: "10",
+    date_from: "",
+    date_to: "",
+  };
+  listAllLeaves(filterAttendance);
+  listAllAttendance(filterAttendance);
+  listTimeSheetAttendance(filterAttendance);
+}
 const onRangeEndRequest = (value) => {
   const formatDate = (inputDate) => {
     const date = new Date(inputDate);
@@ -342,8 +404,11 @@ async function addTimeOffHandler() {
     const response = await res.json();
     if (res.ok) {
       addLoading.value = false;
+      timeoffModal.value = false;
       requestData.value = response.model;
-
+      listAllLeaves(filterAttendance);
+      listAllAttendance(filterAttendance);
+      listTimeSheetAttendance(filterAttendance);
       return res;
     } else {
       addLoading.value = false;
@@ -384,15 +449,143 @@ async function showTimeOff(id) {
     };
   }
 }
+
+const presetDates = ref([
+  { label: "Today", value: [new Date(), new Date()] },
+  {
+    label: "Yesterday",
+    value: [subDays(new Date(), 1), new Date()],
+  },
+  {
+    label: "This Week",
+    value: [startOfWeek(new Date()), endOfWeek(new Date())],
+  },
+  {
+    label: "Last Week",
+    value: [
+      startOfWeek(subWeeks(new Date(), 1)),
+      endOfWeek(subWeeks(new Date(), 1)),
+    ],
+  },
+  {
+    label: "This month",
+    value: [startOfMonth(new Date()), endOfMonth(new Date())],
+  },
+
+  {
+    label: "Last month",
+    value: [
+      startOfMonth(subMonths(new Date(), 1)),
+      endOfMonth(subMonths(new Date(), 1)),
+    ],
+  },
+  {
+    label: "Reset",
+    slot: "preset-date-range-button",
+  },
+]);
+function filterViaDate() {
+  onRangeStart(date.value[0]);
+  onRangeEnd(date.value[1]);
+}
+function clearValue(v) {
+  date.value = null;
+}
+var currentDate = new Date();
+
+// Get the time string with AM/PM information
+var timeString = currentDate.toLocaleTimeString([], {
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+// Extract the AM/PM part
+var amOrPm = timeString.slice(-2);
 </script>
 <template>
-  <div
-    class="grid grid-cols-12 w-full items-start justify-center  lg:h-screen"
-  >
+  <div class="grid grid-cols-12 w-full items-start justify-center lg:h-screen">
     <AppUserInfo :employeeData="employeeData" :loading="employeeLoading" />
 
     <div class="dashboard">
-      <div class="block lg:flex justify-between items-center mx-8 mb-2">
+      <div
+        v-if="
+          checkData.clock_in === null ||
+          (checkData.clock_in !== null && checkData.clock_out !== null)
+        "
+      >
+        <p class="text-start font-semibold text-xl mt-4 mx-8">
+          Good {{ amOrPm === "PM" ? "evening" : "morning" }}
+          {{ employeeData.first_name }},
+        </p>
+        <p class="text-start font-normal text-sm mx-8 text-[#9D9B97] mb-3">
+          Let's start a productive day!
+        </p>
+      </div>
+      <div class="block lg:flex justify-between items-center mx-8 my-2">
+        <div>
+          <vue-date-picker
+            v-model="date"
+            range
+            :preset-dates="presetDates"
+            placeholder="Time period:"
+            :enable-time-picker="false"
+            ignore-time-validation
+            auto-apply
+            required
+            :month-change-on-scroll="false"
+            @range-start="onRangeStart"
+            @range-end="onRangeEnd"
+            @closed="filterViaDate"
+            @cleared="ClearFilter"
+          >
+            <template #preset-date-range-button="{ label, value, presetDate }">
+              <span
+                class="text-primary font-primary font-medium absolute bottom-0 my-4 mx-2"
+                role="button"
+                :tabindex="0"
+                @click="clearValue(value)"
+                @keyup.enter.prevent="clearValue(value)"
+                @keyup.space.prevent="clearValue(value)"
+              >
+                {{ label }}
+              </span>
+            </template>
+          </vue-date-picker>
+        </div>
+        <!-- BUTTONS -->
+        <div class="block lg:flex gap-2">
+          <!--    <button
+            class="bg-primary hover:bg-primary/90 whitespace-nowrap w-full my-5 lg:h-10 lg:my-0 text-white rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
+          >
+           Break in
+          </button> -->
+          <!--    <button
+            class="bg-warning hover:bg-warning/90 whitespace-nowrap w-full my-5 lg:h-10 lg:my-0 text-white rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
+          >
+           Break out
+          </button> -->
+          <button
+            v-if="
+              checkData.clock_in === null ||
+              (checkData.clock_in !== null && checkData.clock_out !== null)
+            "
+            class="bg-primary hover:bg-primary/90 w-full whitespace-nowrap my-5 lg:h-10 lg:my-0 text-white rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
+          >
+            Clock in
+          </button>
+          <!--    <button
+            class=" bg-transparent hover:bg-transparent/5 whitespace-nowrap border border-[#444443] w-full my-5 lg:h-10 lg:my-0 text-[#171106] rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
+          >
+            Clock out
+          </button> -->
+        </div>
+      </div>
+
+      <!-- user  timeline -->
+      <!--  <div  class="singleLog h-3 bg-success rounded-[2px] mx-8 "   >
+       
+          </div> -->
+      <div class="block lg:flex justify-between items-center mx-8 my-2">
         <div>
           <nav
             class="bg-[#E6E5E4] lg:h-10 lg:w-full items-center block lg:flex w-full rounded-lg px-[2px] py-[2px] my-2 gap-3"
@@ -923,7 +1116,7 @@ async function showTimeOff(id) {
                   </p>
                   <p
                     class="font-medium font-primary text-sm text-[#171106]"
-                    v-if="!timeoffDetailsLoading"
+                    v-if=" requestData.status === 'hours' && !timeoffDetailsLoading"
                   >
                     {{ requestData.hours }} hours
                   </p>
@@ -1002,7 +1195,7 @@ async function showTimeOff(id) {
 
 <style scoped>
 .dashboard {
-  @apply !h-screen col-span-12 lg:col-span-10 bg-white lg:h-screen pt-10 mb-10 !justify-center px-6 lg:px-0;
+  @apply  col-span-12 lg:col-span-10 bg-white  lg:h-screen pt-7 !justify-center px-6 lg:px-0;
 }
 .info-section {
   @apply bg-white   h-fit py-4 mb-5 w-full;

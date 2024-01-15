@@ -526,7 +526,7 @@ defineProps({
       </div>
       <div class="hidden lg:flex" v-if="item.key !== 'leave'">
         <p class="text-[#171106] font-primary text-sm whitespace-pre">
-          {{ item.overtime === '0' ? "-" : item.overtime + " Hours" }}
+          {{ item.overtime === "0" ? "-" : item.overtime + " Hours" }}
         </p>
       </div>
       <div class="hidden lg:flex" v-if="item.key !== 'leave'">
@@ -556,18 +556,18 @@ defineProps({
           No result found
         </p>
         <p class="text-center font-primary text-base text-black">
-          No logs available 
+          No logs available
         </p>
       </div>
     </div>
     <!-- pagination -->
     <div
       class="lg:flex md:flex flex gap-8 items-center mb-10 pr-12"
-      v-if="data.length > 0"
+      v-if="data.length > 0  && !loading"
     >
       <div class="lg:flex md:flex block items-baseline gap-4 w-full px-4">
         <p
-          class="text-center py-2 mt-3 text-[#93A3B0] text-sm font-normal font-primary"
+          class=" hidden md:block text-center py-2 mt-3 text-[#93A3B0] text-sm font-normal font-primary"
         >
           Show rows per page
         </p>
@@ -578,6 +578,8 @@ defineProps({
             @change="
               emit('paginate', {
                 per_page: filterData.per_page,
+                date_from: filterData.date_from,
+                date_to: filterData.date_to,
               })
             "
           >
@@ -600,22 +602,24 @@ defineProps({
         Page {{ pagination.currentPage }} of {{ pagination.lastPage }}
       </p>
       <ol
-        class="lg:flex md:flex block justify-center text-xs font-medium my-6"
+        class="lg:flex md:flex flex justify-end text-xs font-medium my-6"
         v-if="pagination.lastPage > 1"
       >
-        <li>
+        <li >
           <a
             :class="{
               ' bg-transparent !text-gray-400  ': pagination.currentPage == 1,
             }"
             href="#"
-            class="inline-flex h-10 w-10 text-base hover:bg-slate-200 items-center justify-center rounded-lg bg-transparent text-black rtl:rotate-180"
+            class="lg:inline-flex flex h-10 w-10 text-base hover:bg-slate-200 items-center justify-center rounded-lg bg-transparent text-black rtl:rotate-180"
             @click="
               pagination.currentPage == 1
                 ? null
                 : emit('paginate', {
                     page: pagination.currentPage - 1,
                     per_page: filterData.per_page,
+                    date_from: filterData.date_from,
+                    date_to: filterData.date_to,
                   })
             "
           >
@@ -635,10 +639,12 @@ defineProps({
                 : emit('paginate', {
                     page: pagination.currentPage + 1,
                     per_page: filterData.per_page,
+                    date_from: filterData.date_from,
+                    date_to: filterData.date_to,
                   })
             "
             href="#"
-            class="inline-flex h-10 w-10 hover:bg-slate-200 text-base items-center justify-center rounded-lg bg-transparent text-gray-900 rtl:rotate-180"
+            class="lg:inline-flex flex h-10 w-10 hover:bg-slate-200 text-base items-center justify-center rounded-lg bg-transparent text-gray-900 rtl:rotate-180"
           >
             <i class="fi fi-rr-angle-right !text-xs"></i>
           </a>
