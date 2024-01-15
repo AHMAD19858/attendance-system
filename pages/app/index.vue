@@ -3,13 +3,7 @@ definePageMeta({
   layout: "employee",
   middleware: ["auth"],
 });
-useHead({
-  script: [
-    {
-      src: "https://maps.googleapis.com/maps/api/js?key=AIzaSyBgGqT6z3wjwI7V936TbGHvHxjChX7yvM4&libraries=places",
-    },
-  ],
-});
+
 import { useUserStore } from "~/stores/auth";
 import moment from "moment/moment";
 import { Field, Form, defineRule, ErrorMessage, configure } from "vee-validate";
