@@ -29,7 +29,7 @@ async function loginHandler() {
     .then((res) => {
       loginSuccess.value = true;
       if (user.value.role.title == "Manager") {
-        location.href = "/app/home";
+        location.href = "/app/dashboard";
       } else {
         location.href = "/app";
       }
@@ -78,11 +78,14 @@ async function logOut() {
           >
             <img :src="user.image" alt="" class="w-10" />
 
-            <nuxt-link to="/app" class="">
-              <span class="block text-lg font-medium font-primary "
+            <nuxt-link
+              :to="user.role.title == 'Manager' ? '/app/dashboard' : '/app'"
+              class=""
+            >
+              <span class="block text-lg font-medium font-primary"
                 >{{ user.first_name }} {{ user.last_name }}
               </span>
-              <span class="text-sm block font-normal "
+              <span class="text-sm block font-normal"
                 >Continue to dashboard</span
               >
             </nuxt-link>

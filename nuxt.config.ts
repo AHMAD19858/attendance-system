@@ -47,7 +47,8 @@ export default defineNuxtConfig({
     apiSecret: process.env.API_BASE_URL,
     // Keys within public, will be also exposed to the client-side
     public: {
-      apiBase: process.env.API_BASE_URL
+      apiBase: process.env.API_BASE_URL,
+      google: process.env.GOOGLE
     }
   },
 })

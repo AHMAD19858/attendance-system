@@ -1,14 +1,21 @@
 <script setup>
+ const googleUrl = useRuntimeConfig().public.google;
 definePageMeta({
   layout: "employee",
   middleware: ["auth"],
 });
+useHead({
+  script: [
+    {
+      src: googleUrl,
+    },
+  ],
+});
 
 import { useUserStore } from "~/stores/auth";
 import moment from "moment/moment";
-import { Field, Form, defineRule, ErrorMessage, configure } from "vee-validate";
+import { Field, Form, defineRule, ErrorMessage } from "vee-validate";
 import { required, email, regex, min_value } from "@vee-validate/rules";
-import { localize } from "@vee-validate/i18n";
 import { useToast } from "vue-toastification";
 import {
   endOfMonth,
@@ -35,6 +42,7 @@ const clockinData = ref({});
 const clockinDetailsModal = ref(false);
 const timeoffDetailsModal = ref(false);
 const clockinActionModal = ref(false);
+const clockoutActionModal = ref(false);
 const timeoffDetailsLoading = ref(false);
 const timeoffModal = ref(false);
 const addLoading = ref(false);
@@ -128,26 +136,25 @@ const types = ref([
 ]);
 async function getLocation() {
   try {
-    navigator.permissions.query({ name: "geolocation" }).then(async(result) => {
-      if(result.state === 'granted'){
-
-        locationStatus.value = result.state;
-        localStorage.setItem("state", result.state);
-        const position = await getCurrentPosition();
-        latitude.value = position.coords.latitude;
-        longitude.value = position.coords.longitude;
-        /*  console.log("first", position); */
-        getAddressFromLatLng(latitude.value, longitude.value);
-      }
-      else{
-        locationStatus.value = result.state;
-        localStorage.setItem("state", result.state);
-        const position = await getCurrentPosition();
-        latitude.value = position.coords.latitude;
-        longitude.value = position.coords.longitude;
-        getAddressFromLatLng(latitude.value, longitude.value);
-      }
-});
+    navigator.permissions
+      .query({ name: "geolocation" })
+      .then(async (result) => {
+        if (result.state === "granted") {
+          locationStatus.value = result.state;
+          localStorage.setItem("state", result.state);
+          const position = await getCurrentPosition();
+          latitude.value = position.coords.latitude;
+          longitude.value = position.coords.longitude;
+          getAddressFromLatLng(latitude.value, longitude.value);
+        } else {
+          locationStatus.value = result.state;
+          localStorage.setItem("state", result.state);
+          const position = await getCurrentPosition();
+          latitude.value = position.coords.latitude;
+          longitude.value = position.coords.longitude;
+          getAddressFromLatLng(latitude.value, longitude.value);
+        }
+      });
   } catch (error) {
     /*   console.error("Error getting location:", error.message); */
     toast.error(error.message);
@@ -184,11 +191,10 @@ var locationStatus = ref(null);
   localStorage.setItem("state", result.state);
 }); */
 function openDialog() {
-  if(locationStatus.value === 'granted'){
+  if (locationStatus.value === "granted") {
     clockinActionModal.value = true;
     getLocation();
-  }
-  else if (address.value == null) {
+  } else if (address.value == null) {
     navigator.permissions.query({ name: "geolocation" }).then((result) => {
       if (result.state === "denied") {
         toast.error("Please allow location in browser settings");
@@ -356,6 +362,47 @@ async function listTimeSheetAttendance(body) {
   }
 }
 listTimeSheetAttendance(filterAttendance);
+
+async function clockHandler(type) {
+  attendanceLoading.value = true;
+  let formData = new FormData();
+  formData.append("user_id", user.id);
+  formData.append("type", type);
+  formData.append("location", address.value);
+
+  formData.append("longitude", longitude.value);
+  formData.append("latitude", latitude.value);
+
+  const res = await fetch(baseURL + "attendances/store", {
+    method: "POST",
+    headers: {
+      "Auth-Token": token,
+    },
+    body: formData,
+    redirect: "follow",
+  });
+  const attendanceData = await res.json();
+  if (res.ok) {
+    if (type == "in") {
+      checkAction().then(() => {
+        /*  clockDate.value = checkData.value.clock_in;
+          elapsedTime.value = 0; */
+      });
+      toast.success("clocked in successfully");
+    }
+    listAllLeaves(filterAttendance);
+    listAllAttendance(filterAttendance);
+    listTimeSheetAttendance(filterAttendance);
+    return res;
+  } else {
+    attendanceLoading.value = false;
+    throw {
+      status: res.ok,
+      code: res.status,
+      message: attendanceData.msg,
+    };
+  }
+}
 
 async function checkAction() {
   actionLoading.value = true;
@@ -638,16 +685,29 @@ var amOrPm = timeString.slice(-2);
         </div>
         <!-- BUTTONS -->
         <div class="block lg:flex gap-2">
-          <!--    <button
+          <button
+            v-if="
+              (checkData.break_in === null ||
+                (checkData.break_in !== null &&
+                  checkData.break_out !== null)) &&
+              checkData.clock_out === null &&
+              checkData.clock_in !== null
+            "
             class="bg-primary hover:bg-primary/90 whitespace-nowrap w-full my-5 lg:h-10 lg:my-0 text-white rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
           >
-           Break in
-          </button> -->
-          <!--    <button
-            class="bg-warning hover:bg-warning/90 whitespace-nowrap w-full my-5 lg:h-10 lg:my-0 text-white rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
+            Break in
+          </button>
+          <button
+            v-if="
+              checkData.break_out === null &&
+              checkData.break_in !== null &&
+              checkData.clock_in !== null &&
+              checkData.clock_out == null
+            "
+            class="bg-transparent hover:bg-transparent/5 whitespace-nowrap w-full my-5 lg:h-10 lg:my-0 text-white rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
           >
-           Break out
-          </button> -->
+            Break out
+          </button>
           <button
             @click="openDialog"
             v-if="
@@ -658,18 +718,84 @@ var amOrPm = timeString.slice(-2);
           >
             Clock in
           </button>
-          <!--    <button
-            class=" bg-transparent hover:bg-transparent/5 whitespace-nowrap border border-[#444443] w-full my-5 lg:h-10 lg:my-0 text-[#171106] rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
+          <button
+            @click="clockoutActionModal = true"
+            v-if="checkData.clock_out === null && checkData.clock_in !== null"
+            class="bg-transparent hover:bg-transparent/5 whitespace-nowrap border border-[#444443] w-full my-5 lg:h-10 lg:my-0 text-[#171106] rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
           >
             Clock out
-          </button> -->
+          </button>
         </div>
       </div>
+<!-- user  timeline  details-->
+      <div class="lg:flex justify-between items-center  mx-8 my-2 mt-4">
+          <div class="flex gap-2 py-2 lg:py-0">
+            <p
+              class="font-normal text-base text-warning font-primary"
+              v-if="
+                checkData.break_out === null &&
+                checkData.break_in !== null &&
+                checkData.clock_in !== null &&
+                checkData.clock_out == null
+              "
+            >
+              You are in a break
+            </p>
+            <p
+              class="font-normal text-base text-success font-primary"
+              v-else-if="
+                checkData.clock_out === null && checkData.clock_in !== null
+              "
+            >
+              You are clocked in
+            </p>
 
-      <!-- user  timeline -->
-      <!--  <div  class="singleLog h-3 bg-success rounded-[2px] mx-8 "   >
+            <p class="font-normal text-base text-success" v-else>
+              clock in to start
+            </p>
+
+            <div class="border-l border-l-[#AEACA8] h-4 my-1"></div>
+            <p class="font-medium text-xl text-[#171106]">
+              {{
+                checkData.clock_out === null && checkData.clock_in !== null
+                  ? formatTime(elapsedTime)
+                  : "00:00:00"
+              }}
+            </p>
+          </div>
+
+          <div class="flex gap-2 items-center py-2 lg:py-0" >
+            <div class="w-2 h-2 bg-success rounded-sm"></div>
+            <p class="font-normal text-[13px] lg:text-sm text-[#171106]"
+             v-if="checkData.clock_out !== null">
+             
+             Worktime: {{sheetAttendance[0]?.total_hours}} hrs
+           </p>
+            <p class="font-normal text-[13px] lg:text-sm text-[#171106]" v-else>
+             
+              Worktime: {{ Math.floor(workTimeInMin/60)  }} hrs
+            </p>
+            <div class="border-l border-l-gray-500 h-4"></div>
+            <div class="w-2 h-2 bg-warning rounded-sm"></div>
+            <p class="font-normal text-[13px] lg:text-sm text-[#171106]" v-if="checkData.clock_in === null && checkData.clock_out === null">
+              Breaktime: 0 hrs
+            </p>
+            <p class="font-normal text-[13px] lg:text-sm text-[#171106]" v-else>
+              Breaktime: {{sheetAttendance[0]?.breaks_total_hours}} hrs
+            </p>
+            <div class="border-l border-l-gray-500 h-4"></div>
+            <div class="w-2 h-2 bg-primary rounded-sm"></div>
+            <p class="font-normal text-[13px] lg:text-sm text-[#171106]">
+              Overtime: {{ Number((overTimeInMin/60).toFixed(1))}} hrs
+            </p>
+          </div>
+        </div>
+
+      <!-- user  progressbar -->
+       <div  class="singleLog h-3 bg-success rounded-[2px] mx-8 mb-4"   >
        
-          </div> -->
+          </div>
+
       <div class="block lg:flex justify-between items-center mx-8 my-2">
         <div>
           <nav
@@ -740,6 +866,7 @@ var amOrPm = timeString.slice(-2);
         :pagination="pagination"
         :perPageList="[5, 10, 15, 20, 30, 50]"
       />
+      <!-- Add time off -->
       <AppModal
         :is-open="timeoffModal"
         @close="timeoffModal = false"
@@ -1027,6 +1154,7 @@ var amOrPm = timeString.slice(-2);
           <button ref="formSubmit" class="hidden"></button>
         </Form>
       </AppModal>
+      <!-- Clock in details -->
       <AppModal
         :is-open="clockinDetailsModal"
         @close="clockinDetailsModal = false"
@@ -1096,7 +1224,7 @@ var amOrPm = timeString.slice(-2);
           <button ref="formSubmit" class="hidden"></button>
         </Form>
       </AppModal>
-
+      <!-- Time off details -->
       <AppModal
         :is-open="timeoffDetailsModal"
         @close="timeoffDetailsModal = false"
@@ -1276,6 +1404,7 @@ var amOrPm = timeString.slice(-2);
           <button ref="formSubmit" class="hidden"></button>
         </Form>
       </AppModal>
+      <!-- Clock in action -->
       <AppModal
         :is-open="clockinActionModal"
         @close="clockinActionModal = false"
@@ -1288,7 +1417,7 @@ var amOrPm = timeString.slice(-2);
         <Form>
           <div class="info-section">
             <div
-              class="flex justify-between bg-[#F7F7F6] px-2 py-4 items-center mt-5"
+              class="flex justify-between bg-[#F7F7F6] px-4 py-4 items-center mt-5 rounded-lg"
             >
               <div class="flex gap-2 items-center">
                 <img
@@ -1341,6 +1470,84 @@ var amOrPm = timeString.slice(-2);
                   {{ address }}
                 </p>
               </div>
+            </div>
+          </div>
+          <button ref="formSubmit" class="hidden"></button>
+        </Form>
+      </AppModal>
+      <!-- Clock out action -->
+      <AppModal
+        :is-open="clockoutActionModal"
+        @close="clockoutActionModal = false"
+        title="Clock out"
+        confirm-text="Clock out"
+        :loading="addLoading"
+        @confirm="clockHandler('out')"
+        :showActions="true"
+      >
+        <Form>
+          <div class="info-section">
+            <div
+              class="flex justify-between bg-[#F7F7F6] px-2 py-4 items-center mt-5 rounded-lg"
+            >
+              <div class="flex gap-2 items-center">
+                <img
+                  :src="employeeData?.image"
+                  alt=""
+                  class="w-12 h-12 rounded-full"
+                />
+                <div>
+                  <p class="font-primary text-base font-medium text-[#171106]">
+                    {{ employeeData?.first_name }}
+                    {{ employeeData?.last_name }}
+                  </p>
+                  <p class="font-primary text-[13px] font-light text-[#6E7A84]">
+                    {{ employeeData?.job_title }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="flex w-full items-start px-2 pt-5">
+              <div class="w-1/2">
+                <div class="border border-primary w-8 rounded-full mt-2"></div>
+                <p class="font-primary font-light text-[#6E7A84] text-[13px]">
+                  Date
+                </p>
+                <div class="">
+                  <p class="font-medium font-primary text-sm text-[#171106]">
+                    {{ moment(Date.now()).format("MMM Do YYYY") }}
+                  </p>
+                </div>
+
+                <div class="border border-primary w-8 rounded-full mt-6"></div>
+                <p class="font-primary font-light text-[#6E7A84] text-[13px]">
+                  Location
+                </p>
+                <div>
+                  <p class="font-medium font-primary text-sm text-[#171106]">
+                    {{ address }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="w-1/2">
+                <div class="border border-primary w-8 rounded-full mt-2"></div>
+                <p class="font-primary font-light text-[#6E7A84] text-[13px]">
+                  Time
+                </p>
+                <p class="font-medium font-primary text-sm text-[#171106]">
+                  {{ moment(clockinData.clock_in).format("LT") }}
+                </p>
+              </div>
+            </div>
+            <div
+              class="rounded-sm bg-[#FCEDE9] pt-4 pb-10 w-full items-start px-2 mt-7"
+            >
+              <p class="text-[#CB4321] font-medium text-base px-2">Warning</p>
+              <p class="text-[#CB4321] font-normal text-[13px] px-2">
+                Once you Clock out you won't be able to Clock in today again, if
+                you already want to Clock out click the Clock out button below.
+              </p>
             </div>
           </div>
           <button ref="formSubmit" class="hidden"></button>
