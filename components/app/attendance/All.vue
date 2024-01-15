@@ -91,7 +91,7 @@ defineProps({
       <!--  -->
       <div class="block" v-if="item.key == 'leave'">
         <div
-          class="flex items-center gap-2 border-b-2 w-full border-r lg:h-16 lg:border-l-4 pl-1 border-l-primary lg:border-solid border-none lg:border-b-[#eeeeeb]"
+          class="flex py-2 items-center justify-between gap-2 border-b-2 w-full border-r lg:h-16 lg:border-l-4 pl-1 border-l-primary lg:border-solid border-none lg:border-b-[#eeeeeb]"
           :class="
             item.approval_status === 'pending'
               ? 'border-l-warning'
@@ -100,7 +100,9 @@ defineProps({
               : 'border-l-primary'
           "
         >
-          <div class="border rounded-[20px] px-1 border-[#171106] mx-1">
+        <div class="flex gap-2 items-center ">
+
+          <div class="border rounded-[20px] px-1 border-[#171106] ml-2">
             <p class="text-[#171106] text-xs font-normal font-primary mx-[2px]">
               {{ moment(item.choosed_date).format("dddd").slice(0, 3) }}
             </p>
@@ -111,10 +113,11 @@ defineProps({
               {{ moment(item.choosed_date).format("MMM Do YYYY") }}
             </p>
           </div>
+        </div>
 
           <svg
             @click="emit('timeoffDetails', item.id)"
-            class="ml-20 mt-4 lg:hidden"
+            class="mr-2 lg:hidden"
             width="16"
             height="16"
             viewBox="0 0 16 21"
@@ -166,7 +169,7 @@ defineProps({
         </div>
       </div>
 
-      <div class="lg:hidden block px-4">
+      <div class="lg:hidden block px-6">
         <svg
           v-if="item.key == 'leave'"
           class="my-2"
@@ -187,8 +190,8 @@ defineProps({
         class="lg:hidden flex items-center gap-2 w-full border-r lg:border-l-4 pl-1 border-l-primary border-gray-300"
         v-if="item.key == 'leave'"
       >
-        <div class="border rounded-[20px] px-1 border-[#171106]">
-          <p class="text-[#171106] text-xs font-normal font-primary mb-1">
+      <div class="border rounded-[20px] px-1 border-[#171106] ml-2">
+          <p class="text-[#171106] text-xs font-normal font-primary mx-[2px]">
             {{ moment(item.end_date).format("dddd").slice(0, 3) }}
           </p>
         </div>
@@ -281,7 +284,7 @@ defineProps({
 
         <div class="w-1/2 px-4">
           <p class="text-[11px]">Type</p>
-          <div class="py-2 text-[#171106] font-primary font-medium text-[11px]">
+          <div class="py-2 text-[#171106] font-primary font-medium text-sm">
             {{ item.status }}
           </div>
         </div>
@@ -306,13 +309,13 @@ defineProps({
         <div class="w-1/2 px-4">
           <p class="text-[11px]">Duration</p>
           <p
-            class="text-[11px] text-[#171106] font-normal"
+            class="text-sm text-[#171106] font-normal"
             v-if="item.status == 'hours'"
           >
             {{ item.hours === 0 ? "-" : item.hours + " hours" }}
           </p>
           <div
-            class="py-2 text-[#171106] font-primary font-medium text-[11px]"
+            class="py-2 text-[#171106] font-primary font-medium text-sm"
             v-else
           >
             {{ item.duration === 0 ? "-" : item.duration + " days" }}

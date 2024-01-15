@@ -503,7 +503,7 @@ var timeString = currentDate.toLocaleTimeString([], {
 var amOrPm = timeString.slice(-2);
 </script>
 <template>
-  <div class="grid grid-cols-12 w-full items-start justify-center lg:h-screen">
+  <div class="grid grid-cols-12 w-full items-start justify-center h-screen overflow-x-auto lg:overflow-x-clip">
     <AppUserInfo :employeeData="employeeData" :loading="employeeLoading" />
 
     <div class="dashboard">

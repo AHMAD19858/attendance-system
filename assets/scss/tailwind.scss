@@ -89,12 +89,12 @@ html{
 .sk-loader {
   display: inline-block;
   background: #e1e1e1;
-  background: linear-gradient(110deg, #f5f6fa 8%, #eceef5 18%, #f5f6fa 33%);
+
   border-radius: 5px;
   background-size: 200% 100%;
   animation: 1.5s shine linear infinite;
 
-  @apply dark:bg-[#282828] #{!important};
+  @apply animate-pulse bg-slate-300 dark:bg-[#282828] #{!important};
   &-light{
   background: linear-gradient(110deg, #ececec 8%, #fffdfd 18%, #ececec 33%) #{!important};
 

@@ -108,7 +108,7 @@ defineProps({
         </div>
       </div>
 
-      <div class="lg:hidden block px-4" v-if="item.end_date">
+      <div class="lg:hidden block px-6" v-if="item.end_date">
         <svg
           class="my-2"
           width="10"
@@ -128,8 +128,8 @@ defineProps({
         v-if="item.end_date"
         class="lg:hidden flex items-center gap-2 w-full border-r lg:border-l-4 pl-1 border-l-primary border-gray-300"
       >
-        <div class="border rounded-[20px] px-1 border-[#171106]">
-          <p class="text-[#171106] text-xs font-normal font-primary mb-1">
+        <div class="border rounded-[20px] px-1 border-[#171106] ml-2">
+          <p class="text-[#171106] text-xs font-normal font-primary mx-[2px]">
             {{ moment(item.end_date).format("dddd").slice(0, 3) }}
           </p>
         </div>
