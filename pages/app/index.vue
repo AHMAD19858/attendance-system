@@ -3,6 +3,13 @@ definePageMeta({
   layout: "employee",
   middleware: ["auth"],
 });
+useHead({
+  script: [
+    {
+      src: "https://maps.googleapis.com/maps/api/js?key=AIzaSyBgGqT6z3wjwI7V936TbGHvHxjChX7yvM4&libraries=places",
+    },
+  ],
+});
 import { useUserStore } from "~/stores/auth";
 import moment from "moment/moment";
 import { Field, Form, defineRule, ErrorMessage, configure } from "vee-validate";
@@ -33,6 +40,7 @@ const sheetsLoading = ref(false);
 const clockinData = ref({});
 const clockinDetailsModal = ref(false);
 const timeoffDetailsModal = ref(false);
+const clockinActionModal = ref(false);
 const timeoffDetailsLoading = ref(false);
 const timeoffModal = ref(false);
 const addLoading = ref(false);
@@ -47,6 +55,9 @@ const timeofftime = ref("");
 const formSubmit = ref(null);
 const selectedType = ref(false);
 const actionLoading = ref(false);
+const latitude = ref(null);
+const longitude = ref(null);
+const address = ref(null);
 const leavesPagination = reactive({
   currentPage: 1,
   total: "",
@@ -121,6 +132,68 @@ const types = ref([
     value: "hours",
   },
 ]);
+async function getLocation() {
+  try {
+    const position = await getCurrentPosition();
+    latitude.value = position.coords.latitude;
+    longitude.value = position.coords.longitude;
+    /*  console.log("first", position); */
+    getAddressFromLatLng(latitude.value, longitude.value);
+  } catch (error) {
+    /*   console.error("Error getting location:", error.message); */
+    toast.error(error.message);
+  }
+}
+/* getLocation(); */
+function getCurrentPosition() {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+}
+
+function getAddressFromLatLng(lat, lng) {
+  const geocoder = new google.maps.Geocoder();
+  const latLng = new google.maps.LatLng(lat, lng);
+  address.value = null;
+
+  geocoder.geocode({ location: latLng }, (results, status) => {
+    console.log("address", results);
+    if (status === "OK") {
+      if (results[0]) {
+        address.value = results[0].formatted_address;
+      } else {
+        address.value = "No results found";
+      }
+    } else {
+      console.error("Geocoder failed due to:", status);
+    }
+  });
+}
+var locationStatus = ref(null);
+navigator.permissions.query({ name: "geolocation" }).then((result) => {
+  locationStatus.value = result.state;
+  localStorage.setItem("state", result.state);
+});
+function openDialog() {
+  if(locationStatus.value === 'granted'){
+    clockinActionModal.value = true;
+  }
+  else if (address.value == null) {
+    navigator.permissions.query({ name: "geolocation" }).then((result) => {
+      if (result.state === "denied") {
+        toast.error("Please allow location in browser settings");
+      } else {
+        locationStatus.value = result.state;
+        localStorage.setItem("state", result.state);
+        getLocation();
+        clockinActionModal.value = true;
+      }
+      console.log(result);
+    });
+  } else {
+    clockinActionModal.value = true;
+  }
+}
 function selectType(item) {
   selectedType.value = item.id;
   form.status = item.value;
@@ -503,7 +576,9 @@ var timeString = currentDate.toLocaleTimeString([], {
 var amOrPm = timeString.slice(-2);
 </script>
 <template>
-  <div class="grid grid-cols-12 w-full items-start justify-center h-screen overflow-x-auto lg:overflow-x-clip">
+  <div
+    class="grid grid-cols-12 w-full items-start justify-center h-screen overflow-x-auto lg:overflow-x-clip"
+  >
     <AppUserInfo :employeeData="employeeData" :loading="employeeLoading" />
 
     <div class="dashboard">
@@ -540,7 +615,7 @@ var amOrPm = timeString.slice(-2);
           >
             <template #preset-date-range-button="{ label, value, presetDate }">
               <span
-                class="text-primary font-primary font-medium absolute bottom-0 my-4 mx-2"
+                class="text-primary font-primary font-medium lg:absolute bottom-0 my-4 mx-2"
                 role="button"
                 :tabindex="0"
                 @click="clearValue(value)"
@@ -565,6 +640,7 @@ var amOrPm = timeString.slice(-2);
            Break out
           </button> -->
           <button
+            @click="openDialog"
             v-if="
               checkData.clock_in === null ||
               (checkData.clock_in !== null && checkData.clock_out !== null)
@@ -1116,7 +1192,9 @@ var amOrPm = timeString.slice(-2);
                   </p>
                   <p
                     class="font-medium font-primary text-sm text-[#171106]"
-                    v-if=" requestData.status === 'hours' && !timeoffDetailsLoading"
+                    v-if="
+                      requestData.status === 'hours' && !timeoffDetailsLoading
+                    "
                   >
                     {{ requestData.hours }} hours
                   </p>
@@ -1189,13 +1267,83 @@ var amOrPm = timeString.slice(-2);
           <button ref="formSubmit" class="hidden"></button>
         </Form>
       </AppModal>
+      <AppModal
+        :is-open="clockinActionModal"
+        @close="clockinActionModal = false"
+        title="Clock in"
+        confirm-text="Clock in"
+        :loading="addLoading"
+        @confirm="clockHandler('in')"
+        :showActions="true"
+      >
+        <Form>
+          <div class="info-section">
+            <div
+              class="flex justify-between bg-[#F7F7F6] px-2 py-4 items-center mt-5"
+            >
+              <div class="flex gap-2 items-center">
+                <img
+                  :src="employeeData?.image"
+                  alt=""
+                  class="w-12 h-12 rounded-full"
+                />
+                <div>
+                  <p class="font-primary text-base font-medium text-[#171106]">
+                    {{ employeeData?.first_name }}
+                    {{ employeeData?.last_name }}
+                  </p>
+                  <p class="font-primary text-[13px] font-light text-[#6E7A84]">
+                    {{ employeeData?.job_title }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex w-full items-start px-2 pt-5">
+              <div class="w-1/2">
+                <div class="border border-primary w-8 rounded-full mt-2"></div>
+                <p class="font-primary font-light text-[#6E7A84] text-[13px]">
+                  Date
+                </p>
+                <div class="">
+                  <p class="font-primary text-sm text-[#171106] font-medium">
+                    {{ moment(Date.now()).format("MMM Do YYYY") }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="w-1/2">
+                <div class="border border-primary w-8 rounded-full mt-2"></div>
+                <p class="font-primary font-light text-[#6E7A84] text-[13px]">
+                  Time
+                </p>
+                <p class="font-medium font-primary text-sm text-[#171106]">
+                  {{ moment(clockinData.clock_in).format("LT") }}
+                </p>
+              </div>
+            </div>
+            <div class="px-2 pt-5">
+              <div class="border border-primary w-8 rounded-full mt-6"></div>
+              <p class="font-primary font-light text-[#6E7A84] text-[13px]">
+                Location
+              </p>
+              <div class="!w-full">
+                <p class="font-medium font-primary text-sm text-[#171106]">
+                  {{ address }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <button ref="formSubmit" class="hidden"></button>
+        </Form>
+      </AppModal>
     </div>
   </div>
 </template>
 
 <style scoped>
 .dashboard {
-  @apply  col-span-12 lg:col-span-10 bg-white  lg:h-screen pt-7 !justify-center px-6 lg:px-0;
+  @apply col-span-12 lg:col-span-10 bg-white  lg:h-screen pt-7 !justify-center px-6 lg:px-0;
 }
 .info-section {
   @apply bg-white   h-fit py-4 mb-5 w-full;
