@@ -135,7 +135,7 @@ const types = ref([
 async function getLocation() {
   try {
     navigator.permissions.query({ name: "geolocation" }).then(async(result) => {
-      if(locationStatus.value === 'granted'){
+      if(result.state === 'granted'){
 
         locationStatus.value = result.state;
         localStorage.setItem("state", result.state);
@@ -143,6 +143,14 @@ async function getLocation() {
         latitude.value = position.coords.latitude;
         longitude.value = position.coords.longitude;
         /*  console.log("first", position); */
+        getAddressFromLatLng(latitude.value, longitude.value);
+      }
+      else{
+        locationStatus.value = result.state;
+        localStorage.setItem("state", result.state);
+        const position = await getCurrentPosition();
+        latitude.value = position.coords.latitude;
+        longitude.value = position.coords.longitude;
         getAddressFromLatLng(latitude.value, longitude.value);
       }
 });
@@ -167,7 +175,7 @@ function getAddressFromLatLng(lat, lng) {
     console.log("address", results);
     if (status === "OK") {
       if (results[0]) {
-        address.value = results[3].formatted_address;
+        address.value = results[1].formatted_address;
       } else {
         address.value = "No results found";
       }
