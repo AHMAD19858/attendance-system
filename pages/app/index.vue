@@ -134,11 +134,18 @@ const types = ref([
 ]);
 async function getLocation() {
   try {
-    const position = await getCurrentPosition();
-    latitude.value = position.coords.latitude;
-    longitude.value = position.coords.longitude;
-    /*  console.log("first", position); */
-    getAddressFromLatLng(latitude.value, longitude.value);
+    navigator.permissions.query({ name: "geolocation" }).then(async(result) => {
+      if(locationStatus.value === 'granted'){
+
+        locationStatus.value = result.state;
+        localStorage.setItem("state", result.state);
+        const position = await getCurrentPosition();
+        latitude.value = position.coords.latitude;
+        longitude.value = position.coords.longitude;
+        /*  console.log("first", position); */
+        getAddressFromLatLng(latitude.value, longitude.value);
+      }
+});
   } catch (error) {
     /*   console.error("Error getting location:", error.message); */
     toast.error(error.message);
@@ -160,7 +167,7 @@ function getAddressFromLatLng(lat, lng) {
     console.log("address", results);
     if (status === "OK") {
       if (results[0]) {
-        address.value = results[0].formatted_address;
+        address.value = results[3].formatted_address;
       } else {
         address.value = "No results found";
       }
@@ -170,13 +177,14 @@ function getAddressFromLatLng(lat, lng) {
   });
 }
 var locationStatus = ref(null);
-navigator.permissions.query({ name: "geolocation" }).then((result) => {
+/* navigator.permissions.query({ name: "geolocation" }).then((result) => {
   locationStatus.value = result.state;
   localStorage.setItem("state", result.state);
-});
+}); */
 function openDialog() {
   if(locationStatus.value === 'granted'){
     clockinActionModal.value = true;
+    getLocation();
   }
   else if (address.value == null) {
     navigator.permissions.query({ name: "geolocation" }).then((result) => {
@@ -188,7 +196,6 @@ function openDialog() {
         getLocation();
         clockinActionModal.value = true;
       }
-      console.log(result);
     });
   } else {
     clockinActionModal.value = true;
