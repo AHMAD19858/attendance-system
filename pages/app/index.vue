@@ -245,6 +245,42 @@ function openDialog() {
     clockinActionModal.value = true;
   }
 }
+const breakLoading = ref(false);
+async function breakActionHandler(type) {
+  breakLoading.value = true;
+  let formData = new FormData();
+  formData.append("user_id", user.id);
+  formData.append("type", type);
+  const res = await fetch(baseURL + "breaks/store", {
+    method: "POST",
+    headers: {
+      "Auth-Token": token,
+    },
+    body: formData,
+    redirect: "follow",
+  });
+  const attendanceData = await res.json();
+
+  if (res.ok) {
+    listAllAttendance(filterAttendance);
+    listTimeSheetAttendance(filterAttendance);
+    checkAction();
+    breakLoading.value = false;
+    if (type == "in") {
+      toast.success("breaked in successfully");
+    } else {
+      toast.success("breaked out successfully");
+    }
+    return res;
+  } else {
+    breakLoading.value = false;
+    throw {
+      status: res.ok,
+      code: res.status,
+      message: attendanceData.msg,
+    };
+  }
+}
 function selectType(item) {
   selectedType.value = item.id;
   form.status = item.value;
@@ -398,9 +434,9 @@ async function listTimeSheetAttendance(body) {
   }
 }
 listTimeSheetAttendance(filterAttendance);
-
+const clockActionLoading = ref(false);
 async function clockHandler(type) {
-  attendanceLoading.value = true;
+  clockActionLoading.value = true;
   let formData = new FormData();
   formData.append("user_id", user.id);
   formData.append("type", type);
@@ -419,6 +455,8 @@ async function clockHandler(type) {
   });
   const attendanceData = await res.json();
   if (res.ok) {
+    clockinActionModal.value = false;
+    clockoutActionModal.value = false;
     if (type == "in") {
       checkAction().then(() => {
         clockDate.value = checkData.value.clock_in;
@@ -426,12 +464,20 @@ async function clockHandler(type) {
       });
       toast.success("clocked in successfully");
     }
+
     listAllLeaves(filterAttendance);
     listAllAttendance(filterAttendance);
     listTimeSheetAttendance(filterAttendance);
     return res;
   } else {
-    attendanceLoading.value = false;
+    clockActionLoading.value = false;
+    if (
+      checkData.break_in !== null &&
+      checkData.clock_out !== null &&
+      checkData.break_out === null
+    ) {
+      breakActionHandler("out");
+    }
     throw {
       status: res.ok,
       code: res.status,
@@ -827,6 +873,7 @@ var amOrPm = timeString.slice(-2);
         <!-- BUTTONS -->
         <div class="block lg:flex gap-2">
           <button
+            @click="breakActionHandler('in')"
             v-if="
               (checkData.break_in === null ||
                 (checkData.break_in !== null &&
@@ -839,6 +886,7 @@ var amOrPm = timeString.slice(-2);
             Break in
           </button>
           <button
+            @click="breakActionHandler('out')"
             v-if="
               checkData.break_out === null &&
               checkData.break_in !== null &&
@@ -860,7 +908,10 @@ var amOrPm = timeString.slice(-2);
             Clock in
           </button>
           <button
-            @click="clockoutActionModal = true"
+            @click="
+              openDialog();
+              clockoutActionModal = true;
+            "
             v-if="checkData.clock_out === null && checkData.clock_in !== null"
             class="bg-transparent hover:bg-transparent/5 whitespace-nowrap border border-[#444443] w-full my-5 lg:h-10 lg:my-0 text-[#171106] rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
           >
@@ -917,7 +968,7 @@ var amOrPm = timeString.slice(-2);
             checkData.clock_in !== null && checkData.clock_out && !actionLoading
           "
         >
-          <p class="text-sm font-primary text-[#9D9B97]">
+          <p class="text-sm font-primary text-[#9D9B97] text-center">
             You've clocked in today at :
             {{
               new Date(checkData.clock_in)?.toLocaleTimeString([], {
@@ -936,14 +987,14 @@ var amOrPm = timeString.slice(-2);
             class="font-normal text-[13px] lg:text-sm text-[#171106]"
             v-if="checkData.clock_out !== null"
           >
-            Worktime:<span
+            Worktime:<!-- <span
               class="sk-loader w-4"
               style="height: 20px"
               v-if="sheetsLoading"
-            ></span>
+            ></span> -->
             {{
-              sheetAttendance[0].total_hours
-                ? sheetAttendance[0].total_hours + " hrs"
+              sheetAttendance[0]?.total_hours
+                ? sheetAttendance[0]?.total_hours + " hrs"
                 : "0hrs"
             }}
           </p>
@@ -964,16 +1015,22 @@ var amOrPm = timeString.slice(-2);
           <div class="border-l border-l-gray-500 h-4"></div>
           <div class="w-2 h-2 bg-primary rounded-sm"></div>
           <p class="font-normal text-[13px] lg:text-sm text-[#171106]">
-            Overtime: {{ Number((overTimeInMin / 60).toFixed(1)) }} hrs
+            Overtime:
+            {{
+              Number((overTimeInMin / 60).toFixed(1)) === 0
+                ? attendance[0].overtime
+                : Number((overTimeInMin / 60).toFixed(1))
+            }}
+            hrs
           </p>
         </div>
       </div>
 
       <!-- user  progressbar -->
-      <div class="timeLineUser flex bg-[#e5e5e5] rounded-sm mx-8 mb-4">
+      <div class="timeLineUser flex bg-[#e5e5e5] mx-8 mb-4">
         <div
           v-if="checkData.clock_in !== null && checkData.clock_out === null"
-          class="singleLog h-3 rounded-[2px]"
+          class="singleLog h-3"
           v-for="userLog in logs"
           :key="userLog.clock_in"
           :style="{
@@ -1613,7 +1670,7 @@ var amOrPm = timeString.slice(-2);
         @close="clockinActionModal = false"
         title="Clock in"
         confirm-text="Clock in"
-        :loading="addLoading"
+        :loading="clockActionLoading"
         @confirm="clockHandler('in')"
         :showActions="true"
       >
@@ -1684,7 +1741,7 @@ var amOrPm = timeString.slice(-2);
         @close="clockoutActionModal = false"
         title="Clock out"
         confirm-text="Clock out"
-        :loading="addLoading"
+        :loading="clockActionLoading"
         @confirm="clockHandler('out')"
         :showActions="true"
       >
@@ -1721,16 +1778,6 @@ var amOrPm = timeString.slice(-2);
                     {{ moment(Date.now()).format("MMM Do YYYY") }}
                   </p>
                 </div>
-
-                <div class="border border-primary w-8 rounded-full mt-6"></div>
-                <p class="font-primary font-light text-[#6E7A84] text-[13px]">
-                  Location
-                </p>
-                <div>
-                  <p class="font-medium font-primary text-sm text-[#171106]">
-                    {{ address }}
-                  </p>
-                </div>
               </div>
 
               <div class="w-1/2">
@@ -1742,6 +1789,15 @@ var amOrPm = timeString.slice(-2);
                   {{ moment(clockinData.clock_in).format("LT") }}
                 </p>
               </div>
+            </div>
+            <div class="border border-primary w-8 rounded-full mt-6"></div>
+            <p class="font-primary font-light text-[#6E7A84] text-[13px]">
+              Location
+            </p>
+            <div>
+              <p class="font-medium font-primary text-sm text-[#171106]">
+                {{ address }}
+              </p>
             </div>
             <div
               class="rounded-sm bg-[#FCEDE9] pt-4 pb-10 w-full items-start px-2 mt-7"

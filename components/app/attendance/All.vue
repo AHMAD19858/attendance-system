@@ -50,10 +50,10 @@ defineProps({
       class="lg:grid items-center rounded-lg lg:rounded-none gap-10 ml-3 lg:ml-0 border lg:border-t-0 lg:border-r-0 lg:border-l-0 border-b my-4 lg:my-0 font-primary font-normal text-sm py-2 text-[#9D9B97]"
     >
       <div
-        class="flex justify-between items-center gap-1 w-full px-2 lg:px-0 py-4"
+        class="flex justify-between items-center gap-1 w-full px-2 lg:px-0 py-4 ml-2"
         v-if="item.key !== 'leave'"
       >
-        <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center ">
           <div class="border rounded-[20px] px-1 border-[#171106] h-fit">
             <p class="text-[#171106] text-xs font-normal font-primary mx-[2px]">
               {{
@@ -131,7 +131,7 @@ defineProps({
           </svg>
         </div>
         <div
-          class="lg:flex hidden items-center gap-2 w-full border-r lg:h-16 lg:border-l-4 pl-1 border-l-primary border-gray-300 py-1 border-b-[#F7F7F6]"
+          class="lg:flex hidden items-center gap-2 w-full border-r lg:h-16 lg:border-l-4 pl-1 border-l-primary border-gray-300 py-1 "
           :class="
             item.approval_status === 'pending'
               ? 'border-l-warning'
@@ -141,7 +141,7 @@ defineProps({
           "
           v-if="item.key == 'leave' && item.status !== 'hours'"
         >
-          <div class="border rounded-[20px] px-1 border-[#171106] mx-1">
+          <div class="border rounded-[20px] px-1 border-[#171106] ml-2">
             <p class="text-[#171106] text-xs font-normal font-primary mx-[2px]">
               {{ moment(item.end_date).format("dddd").slice(0, 3) }}
             </p>
@@ -219,9 +219,9 @@ defineProps({
         </svg>
 
         <div>
-          <p class="text-[#9D9B97] text-[11px] font-normal">Time off</p>
+          <p class="text-[#9D9B97] text-[13px] font-normal">Time off</p>
           <p
-            class="text-[11px] text-[#171106] font-normal capitalize"
+            class="text-[12px] text-[#171106] font-normal capitalize"
             :class="
               item.approval_status == 'approved'
                 ? 'text-success'
@@ -236,7 +236,7 @@ defineProps({
             {{ item.approved_by.last_name }}
           </p>
 
-          <p class="text-[11px] text-[#171106] font-normal capitalize" v-else>
+          <p class="text-[12px] text-[#171106] font-normal capitalize" v-else>
             {{ item.approval_status }}
           </p>
         </div>
@@ -262,7 +262,7 @@ defineProps({
             />
           </svg>
           <div>
-            <p class="text-[11px]">Time off</p>
+            <p class="text-[12px]">Time off</p>
             <div class="py-2 text-[#171106] font-primary font-medium text-sm">
               <p
                 class="text-[11px] text-[#171106] font-normal"
@@ -324,16 +324,16 @@ defineProps({
       </div>
       <div v-if="item.key == 'leave'" class="lg:block hidden">
         <div>
-          <p class="text-[#9D9B97] text-[11px] font-normal">Type</p>
-          <p class="text-[11px] text-[#171106] font-normal">
+          <p class="text-[#9D9B97] text-[13px] font-normal">Type</p>
+          <p class="text-[12px] text-[#171106] font-normal">
             {{ item.status }}
           </p>
         </div>
       </div>
       <div v-if="item.key == 'leave'" class="lg:block hidden">
         <div>
-          <p class="text-[#9D9B97] text-[11px] font-normal">Approved on</p>
-          <p class="text-[11px] text-[#171106] font-normal">
+          <p class="text-[#9D9B97] text-[13px] font-normal">Approved on</p>
+          <p class="text-[12px] text-[#171106] font-normal">
             {{
               item.approve_date === null
                 ? "-"
@@ -345,8 +345,8 @@ defineProps({
 
       <div v-if="item.key == 'leave'" class="lg:block hidden">
         <div>
-          <p class="text-[#9D9B97] text-[11px] font-normal">Duration</p>
-          <p class="text-[11px] text-[#171106] font-normal">
+          <p class="text-[#9D9B97] text-[13px] font-normal">Duration</p>
+          <p class="text-[12px] text-[#171106] font-normal">
             {{
               item.duration === 0
                 ? item.hours + (item.hours > 1 ? " hours" : " hour")

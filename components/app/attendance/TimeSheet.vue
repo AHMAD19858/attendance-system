@@ -46,7 +46,7 @@ defineProps({
         
           >
           <div
-            class="flex items-center justify-between gap-2 w-full px-2 lg:px-0 py-4"
+            class="flex items-center justify-between gap-2 w-full px-2 lg:px-0 py-4 ml-2"
             v-if="item.key !== 'leave'"
           >
           <div class="flex gap-2 items-center">

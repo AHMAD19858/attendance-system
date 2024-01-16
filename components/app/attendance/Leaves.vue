@@ -157,21 +157,21 @@ defineProps({
         </svg>
 
         <div>
-          <p class="text-[#9D9B97] text-[11px] font-normal">Time off</p>
+          <p class="text-[#9D9B97] text-[13px] font-normal">Time off</p>
           <p
-            class="text-[11px] text-success font-normal"
+            class="text-[12px] text-success font-normal"
             v-if="item.approval_status == 'approved'"
           >
             {{ item.approval_status }} by {{ item.approved_by.first_name }}
             {{ item.approved_by.last_name }}
           </p>
           <p
-            class="text-[11px] text-[#171106] font-normal"
+            class="text-[12px] text-[#171106] font-normal"
             v-else-if="item.approval_status == 'pending'"
           >
             Not Approved yet
           </p>
-          <p class="text-[11px] text-danger font-normal capitalize" v-else>
+          <p class="text-[12px] text-danger font-normal capitalize" v-else>
             {{ item.approval_status }} by {{ item.approved_by.first_name }}
             {{ item.approved_by.last_name }}
           </p>
@@ -254,8 +254,8 @@ defineProps({
       </div>
       <div class="lg:block hidden">
         <div>
-          <p class="text-[#9D9B97] text-[11px] font-normal">Type</p>
-          <p class="text-[11px] text-[#171106] font-normal">
+          <p class="text-[#9D9B97] text-[13px] font-normal">Type</p>
+          <p class="text-[12px] text-[#171106] font-normal">
             {{ item.status }}
           </p>
         </div>
@@ -263,8 +263,8 @@ defineProps({
 
       <div class="lg:block hidden">
         <div>
-          <p class="text-[#9D9B97] text-[11px] font-normal">Approved on</p>
-          <p class="text-[11px] text-[#171106] font-normal">
+          <p class="text-[#9D9B97] text-[13px] font-normal">Approved on</p>
+          <p class="text-[12px] text-[#171106] font-normal">
             {{
               item.approve_date === null
                 ? "-"
@@ -276,14 +276,14 @@ defineProps({
 
       <div class="lg:block hidden">
         <div>
-          <p class="text-[#9D9B97] text-[11px] font-normal">Duration</p>
+          <p class="text-[#9D9B97] text-[13px] font-normal">Duration</p>
           <p
-            class="text-[11px] text-[#171106] font-normal"
+            class="text-[12px] text-[#171106] font-normal"
             v-if="item.status == 'hours'"
           >
             {{ item.hours === 0 ? "-" : item.hours + " hours" }}
           </p>
-          <p class="text-[11px] text-[#171106] font-normal" v-else>
+          <p class="text-[12px] text-[#171106] font-normal" v-else>
             {{ item.duration === 0 ? "-" : item.duration + " days" }}
           </p>
         </div>
@@ -326,7 +326,7 @@ defineProps({
           No result found
         </p>
         <p class="text-center font-primary text-base text-black">
-          no log available
+          No logs available
         </p>
       </div>
     </div>
