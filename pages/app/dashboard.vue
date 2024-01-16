@@ -1,13 +1,11 @@
+<script setup>
+definePageMeta({
+  layout: "admin",
+  middleware: ["auth"],
+});
+</script>
 <template>
-   <div>
-
-   </div>
+  <div class="pt-10 h-screen mx-8">dashboard</div>
 </template>
 
-<script setup>
-
-</script>
-
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
