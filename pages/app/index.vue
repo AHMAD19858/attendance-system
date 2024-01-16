@@ -87,6 +87,15 @@ onMounted(async () => {
 onUnmounted(() => {
   clearInterval(timer);
 });
+
+function calculateTimeDifferenceInSeconds(startDate, endDate) {
+  const timeDifferenceInMilliseconds = endDate - startDate;
+  const timeDifferenceInSeconds = Math.floor(
+    timeDifferenceInMilliseconds / 1000
+  );
+  return timeDifferenceInSeconds;
+}
+
 const leavesPagination = reactive({
   currentPage: 1,
   total: "",
@@ -447,6 +456,24 @@ async function checkAction() {
   if (res.ok) {
     actionLoading.value = false;
     checkData.value = response.data;
+    formatLogs();
+    const date1 = new Date(response.data.clock_in.replace(/-/g, "/"));
+    const date2 = new Date();
+    const timeDifferenceInSeconds = calculateTimeDifferenceInSeconds(
+      date1,
+      date2
+    );
+    workTimeInMin.value = timeDifferenceInSeconds / 60;
+    response.data.breaks.map((item) => {
+      return (breakTimeInMin.value =
+        parseFloat(item.total_hours) + parseFloat(breakTimeInMin.value));
+    });
+    if (response.data.clock_out === null) {
+      elapsedTime.value = timeDifferenceInSeconds;
+      if (timeDifferenceInSeconds > 8 * 60 * 60) {
+        overTimeInMin.value = (timeDifferenceInSeconds - 8 * 60 * 60) / 60;
+      }
+    }
     return res;
   } else {
     actionLoading.value = false;
@@ -458,6 +485,93 @@ async function checkAction() {
   }
 }
 checkAction();
+function getColor(type) {
+  switch (type) {
+    case "1":
+      return "#3CA60F";
+    case "2":
+      return "#F7C343";
+    case "3":
+      return "#5E8CF8";
+  }
+}
+var logs = ref([]);
+
+function formatLogs() {
+  logs.value = [];
+  console.log("first", checkData.value);
+  checkData.value?.breaks.map((el) => {
+    !el.clock_out
+      ? (el.clock_out =
+          new Date().getHours().toString().padStart(2, "0") +
+          ":" +
+          new Date().getMinutes().toString().padStart(2, "0"))
+      : "";
+  });
+  checkData.value.breaks.map((el) => {
+    el.percentage =
+      ((new Date(new Date().toISOString().split("T")[0] + " " + el.clock_out) -
+        new Date(new Date().toISOString().split("T")[0] + " " + el.clock_in)) /
+        1000 /
+        60 /
+        60 /
+        8) *
+      100;
+    el.type = "2";
+  });
+
+  checkData.value.breaks.unshift({
+    user_id: 1,
+    total_hours: "0.0",
+    clock_in: checkData?.value.clock_in?.split(" ").slice(1).join(" "),
+    clock_out: checkData.value.breaks[0]?.clock_in
+      ? checkData.value.breaks[0]?.clock_in
+      : new Date().getHours().toString().padStart(2, "0") +
+        ":" +
+        new Date().getMinutes().toString().padStart(2, "0"),
+    type: "1",
+  });
+
+  //adjust percentage
+  checkData.value.breaks.map((el) => {
+    let date1 = new Date().toISOString().split("T")[0] + " " + el.clock_out;
+    let date2 = new Date().toISOString().split("T")[0] + " " + el.clock_in;
+    let difference =
+      new Date(date1.replace(/-/g, "/")) - new Date(date2.replace(/-/g, "/"));
+    el.percentage = (difference / 1000 / 60 / 60 / 8) * 100;
+  });
+
+  //adding between breaks work shifts
+  checkData.value.breaks.map((el, index) => {
+    checkData.value.breaks[index].clock_out !==
+    checkData.value.breaks[index + 1]?.clock_in
+      ? checkData.value.breaks.splice(index + 1, 0, {
+          user_id: 1,
+          total_hours: "0.0",
+          clock_in: checkData.value.breaks[index]?.clock_out,
+          clock_out: checkData.value.breaks[index + 1]?.clock_in,
+          type: "1",
+        })
+      : (el.type = "1");
+  });
+  checkData.value.breaks.map((el) => {
+    el.clock_out == undefined
+      ? (el.clock_out =
+          new Date().getHours().toString().padStart(2, "0") +
+          ":" +
+          new Date().getMinutes().toString().padStart(2, "0"))
+      : "";
+  });
+  checkData.value.breaks.map((el) => {
+    let date1 = new Date().toISOString().split("T")[0] + " " + el.clock_out;
+    let date2 = new Date().toISOString().split("T")[0] + " " + el.clock_in;
+    let difference =
+      new Date(date1.replace(/-/g, "/")) - new Date(date2.replace(/-/g, "/"));
+    el.percentage = (difference / 1000 / 60 / 60 / 8) * 100;
+  });
+
+  logs.value = checkData.value.breaks;
+}
 const onRangeStart = (value) => {
   const formatDate = (inputDate) => {
     const date = new Date(inputDate);
@@ -679,7 +793,7 @@ var amOrPm = timeString.slice(-2);
           Let's start a productive day!
         </p>
       </div>
-      <div class="block lg:flex justify-between items-center mx-8 my-2">
+      <div class="block lg:flex justify-between items-center mx-8 my-8">
         <div>
           <vue-date-picker
             v-model="date"
@@ -798,7 +912,11 @@ var amOrPm = timeString.slice(-2);
             style="height: 20px"
          v-if="actionLoading"
           ></span> -->
-        <div v-if="checkData.clock_in !== null && !actionLoading">
+        <div
+          v-if="
+            checkData.clock_in !== null && checkData.clock_out && !actionLoading
+          "
+        >
           <p class="text-sm font-primary text-[#9D9B97]">
             You've clocked in today at :
             {{
@@ -823,7 +941,11 @@ var amOrPm = timeString.slice(-2);
               style="height: 20px"
               v-if="sheetsLoading"
             ></span>
-            {{ sheetAttendance[0].total_hours?sheetAttendance[0].total_hours + ' hrs':'0hrs' }}
+            {{
+              sheetAttendance[0].total_hours
+                ? sheetAttendance[0].total_hours + " hrs"
+                : "0hrs"
+            }}
           </p>
           <p class="font-normal text-[13px] lg:text-sm text-[#171106]" v-else>
             Worktime: {{ Math.floor(workTimeInMin / 60) }} hrs
@@ -848,10 +970,33 @@ var amOrPm = timeString.slice(-2);
       </div>
 
       <!-- user  progressbar -->
-      <div
-        v-if="checkData.clock_in !== null && checkData.clock_out === null"
-        class="singleLog h-3 bg-success rounded-[2px] mx-8 mb-4"
-      ></div>
+      <div class="timeLineUser flex bg-[#e5e5e5] rounded-sm mx-8 mb-4">
+        <div
+          v-if="checkData.clock_in !== null && checkData.clock_out === null"
+          class="singleLog h-3 rounded-[2px]"
+          v-for="userLog in logs"
+          :key="userLog.clock_in"
+          :style="{
+            background: getColor(userLog.type),
+            width: userLog.percentage + '%',
+          }"
+          v-tippy="{ content: userLog.clock_in }"
+        ></div>
+        <div
+          v-tippy="{
+            content:
+              'overtime percentage ' +
+              ((overTimeInMin / (16 * 60)) * 100).toFixed(1) +
+              '%',
+          }"
+          v-if="elapsedTime > 28800"
+          class="singleLog h-3"
+          :style="{
+            background: '#5E8CF8',
+            width: (overTimeInMin / (16 * 60)) * 100 + '%',
+          }"
+        ></div>
+      </div>
 
       <div class="flex"></div>
       <div class="block lg:flex justify-between items-center mx-8 my-2">
