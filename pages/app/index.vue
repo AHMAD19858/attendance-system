@@ -1018,7 +1018,7 @@ var amOrPm = timeString.slice(-2);
             Overtime:
             {{
               Number((overTimeInMin / 60).toFixed(1)) === 0
-                ? attendance[0].overtime
+                ? attendance[0]?.overtime
                 : Number((overTimeInMin / 60).toFixed(1))
             }}
             hrs
