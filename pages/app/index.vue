@@ -1077,7 +1077,7 @@ var amOrPm = timeString.slice(-2);
           </p>
         </div>
         <span
-          class="sk-loader w-[25%] rounded-md"
+          class="sk-loader w-[25%] rounded-md hidden lg:block"
           style="height: 20px"
           v-if="attendanceLoading"
         ></span>
