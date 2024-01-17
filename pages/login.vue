@@ -79,7 +79,7 @@ async function logOut() {
             <img :src="user.image" alt="" class="w-10" />
 
             <nuxt-link
-              :to="user.role.title == 'Manager' ? '/app/dashboard' : '/app'"
+              :to="user?.role?.title == 'Manager' ? '/app/dashboard' : '/app'"
               class=""
             >
               <span class="block text-lg font-medium font-primary"

@@ -71,9 +71,10 @@ async function Logout() {
                   :to="link.path"
                   class="flex items-center  py-3 gap-5 transition-all mb-2 rounded-full cursor-pointer w-full menu-link"
                   active-class="active-link-cl"
+                  v-tippy="{content: !sidebarOpen?link.name:'',placement: 'right'}" 
                 >
                   <div class="svg-container">
-                    <i :class="link.iconClass"></i>
+                    <i  :class="link.iconClass"></i>
                   </div>
 
                   <div
@@ -81,7 +82,6 @@ async function Logout() {
                     class="flex justify-between items-center flex-1 menu-group text-white !bg-white "
                   >
                     <span
-                    
                       class="pathName tracking-wider text-sm font-primaryRegular font-medium capitalize text-[#3D3C3B] whitespace-nowrap"
                       >{{ link.name }}</span
                     >
@@ -156,7 +156,7 @@ async function Logout() {
 .active-link-cl {
   @apply gap-2;
   .svg-container {
-    @apply bg-primary rounded-full  text-white fill-white px-3 py-2 text-base w-[40px];
+    @apply bg-primary rounded-xl  text-white fill-white px-3 py-2 text-base w-[40px];
   }
   .pathName {
     @apply text-[#3D3C3B] font-primary font-semibold text-base gap-5;

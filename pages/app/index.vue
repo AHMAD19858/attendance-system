@@ -245,6 +245,25 @@ function openDialog() {
     clockinActionModal.value = true;
   }
 }
+function openClockOutDialog() {
+  if (locationStatus.value === "granted") {
+    clockoutActionModal.value = true;
+    getLocation();
+  } else if (address.value == null) {
+    navigator.permissions.query({ name: "geolocation" }).then((result) => {
+      if (result.state === "denied") {
+        toast.error("Please allow location in browser settings");
+      } else {
+        locationStatus.value = result.state;
+        localStorage.setItem("state", result.state);
+        getLocation();
+        clockoutActionModal.value = true;
+      }
+    });
+  } else {
+    clockoutActionModal.value = true;
+  }
+}
 const breakLoading = ref(false);
 async function breakActionHandler(type) {
   breakLoading.value = true;
@@ -462,9 +481,10 @@ async function clockHandler(type) {
         clockDate.value = checkData.value.clock_in;
         elapsedTime.value = 0;
       });
-      toast.success("clocked in successfully");
+      toast.success("Clocked in successfully");
     }
-
+    toast.success("Clocked out successfully");
+    checkAction();
     listAllLeaves(filterAttendance);
     listAllAttendance(filterAttendance);
     listTimeSheetAttendance(filterAttendance);
@@ -883,7 +903,19 @@ var amOrPm = timeString.slice(-2);
             "
             class="bg-primary hover:bg-primary/90 whitespace-nowrap w-full my-5 lg:h-10 lg:my-0 text-white rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
           >
-            Break in
+            <transition name="v-btn-label" mode="out-in">
+              <div
+                v-if="breakLoading"
+                class="inline-block h-4 w-4 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                role="status"
+              >
+                <span
+                  class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                  >Loading...</span
+                >
+              </div>
+              <div v-else>Break in</div>
+            </transition>
           </button>
           <button
             @click="breakActionHandler('out')"
@@ -893,9 +925,21 @@ var amOrPm = timeString.slice(-2);
               checkData.clock_in !== null &&
               checkData.clock_out == null
             "
-            class="bg-transparent hover:bg-transparent/5 whitespace-nowrap w-full my-5 lg:h-10 lg:my-0 text-white rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
+            class="bg-primary hover:bg-primary/90 whitespace-nowrap w-full my-5 lg:h-10 lg:my-0 text-white rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
           >
-            Break out
+            <transition name="v-btn-label" mode="out-in">
+              <div
+                v-if="breakLoading"
+                class="inline-block h-4 w-4 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                role="status"
+              >
+                <span
+                  class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                  >Loading...</span
+                >
+              </div>
+              <div v-else>Break out</div>
+            </transition>
           </button>
           <button
             @click="openDialog"
@@ -908,10 +952,7 @@ var amOrPm = timeString.slice(-2);
             Clock in
           </button>
           <button
-            @click="
-              openDialog();
-              clockoutActionModal = true;
-            "
+            @click="openClockOutDialog()"
             v-if="checkData.clock_out === null && checkData.clock_in !== null"
             class="bg-transparent hover:bg-transparent/5 whitespace-nowrap border border-[#444443] w-full my-5 lg:h-10 lg:my-0 text-[#171106] rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
           >
@@ -1790,20 +1831,27 @@ var amOrPm = timeString.slice(-2);
                 </p>
               </div>
             </div>
-            <div class="border border-primary w-8 rounded-full mt-6"></div>
-            <p class="font-primary font-light text-[#6E7A84] text-[13px]">
-              Location
-            </p>
-            <div>
-              <p class="font-medium font-primary text-sm text-[#171106]">
-                {{ address }}
+            <div class="px-2">
+              <div class="border border-primary w-8 rounded-full mt-6"></div>
+              <p class="font-primary font-light text-[#6E7A84] text-[13px]">
+                Location
               </p>
+              <div>
+                <p class="font-medium font-primary text-sm text-[#171106]">
+                  {{ address }}
+                </p>
+              </div>
             </div>
             <div
-              class="rounded-sm bg-[#FCEDE9] pt-4 pb-10 w-full items-start px-2 mt-7"
+              class="rounded-lg bg-[#FCEDE9] pt-4 pb-10 w-full items-start px-2 mt-7"
             >
-              <p class="text-[#CB4321] font-medium text-base px-2">Warning</p>
-              <p class="text-[#CB4321] font-normal text-[13px] px-2">
+              <div class="flex items-center">
+                <p class="text-[#CB4321] font-medium text-base px-2">Warning</p>
+                <i
+                  class="fi fi-rr-seal-exclamation text-[#CB4321] pt-1 !text-lg"
+                ></i>
+              </div>
+              <p class="text-[#CB4321] font-primaryRegular text-sm px-2">
                 Once you Clock out you won't be able to Clock in today again, if
                 you already want to Clock out click the Clock out button below.
               </p>
