@@ -862,7 +862,7 @@ var amOrPm = timeString.slice(-2);
           Let's start a productive day!
         </p>
         <p class="text-start font-normal text-sm mx-8 text-[#9D9B97] mb-3">
-          You did you're best today!
+          Day finished. See you tomorrow!
         </p>
       </div>
       <div class="block lg:flex justify-between items-center mx-8 my-8">
@@ -1017,11 +1017,7 @@ var amOrPm = timeString.slice(-2);
             }}
           </p>
         </div>
-        <!--         <span
-            class="sk-loader w-[20%] rounded-md"
-            style="height: 20px"
-         v-if="actionLoading"
-          ></span> -->
+
         <div
           v-if="
             checkData.clock_in !== null && checkData.clock_out && !actionLoading
@@ -1039,7 +1035,9 @@ var amOrPm = timeString.slice(-2);
         </div>
         <div
           class="flex gap-2 items-center py-2 lg:py-0"
-          v-if="checkData.clock_in !== null && !actionLoading"
+          v-if="
+            checkData.clock_in !== null && !actionLoading && !attendanceLoading
+          "
         >
           <div class="w-2 h-2 bg-success rounded-sm"></div>
           <p
@@ -1086,7 +1084,7 @@ var amOrPm = timeString.slice(-2);
         <span
           class="sk-loader w-[25%] rounded-md"
           style="height: 20px"
-          v-if="actionLoading"
+          v-if="attendanceLoading"
         ></span>
         <span
           class="sk-loader w-[23%] rounded-md"
