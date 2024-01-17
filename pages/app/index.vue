@@ -1052,7 +1052,7 @@ var amOrPm = timeString.slice(-2);
               v-if="sheetsLoading"
             ></span> -->
             {{
-              sheetAttendance[0].total_hours
+              sheetAttendance[0]?.total_hours
                 ? sheetAttendance[0]?.total_hours + " hrs"
                 : "0hrs"
             }}
