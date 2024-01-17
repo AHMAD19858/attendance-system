@@ -1024,13 +1024,8 @@ var amOrPm = timeString.slice(-2);
           "
         >
           <p class="text-sm font-primary text-[#9D9B97] text-center">
-            You've clocked in today at :
-            {{
-              new Date(checkData.clock_in)?.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            }}
+            You've clocked in today at
+            {{ useDateFormat(checkData.clock_in, "h:m A").value }}
           </p>
         </div>
         <div
@@ -1522,7 +1517,13 @@ var amOrPm = timeString.slice(-2);
                 </p>
                 <div class="">
                   <p class="font-medium font-primary text-sm text-[#171106]">
-                    {{ moment(clockinData.clock_in).format("MMM Do YYYY") }}
+                    <!--  {{ moment(clockinData.clock_in).format("MMM Do YYYY") }} -->
+                    {{
+                      useDateFormat(
+                        clockinData.clock_in,
+                        "MMM DD, YYYY hh:mm A"
+                      ).value
+                    }}
                   </p>
                 </div>
 
@@ -1776,7 +1777,8 @@ var amOrPm = timeString.slice(-2);
                 </p>
                 <div class="">
                   <p class="font-primary text-sm text-[#171106] font-medium">
-                    {{ moment(Date.now()).format("MMM Do YYYY") }}
+                    <!-- {{ moment(Date.now()).format("MMM Do YYYY") }} -->
+                    {{ useDateFormat(Date.now(), "MMM DD, YYYY hh:mm A").value }}
                   </p>
                 </div>
               </div>
@@ -1787,7 +1789,8 @@ var amOrPm = timeString.slice(-2);
                   Time
                 </p>
                 <p class="font-medium font-primary text-sm text-[#171106]">
-                  {{ moment(clockinData.clock_in).format("LT") }}
+                  <!-- {{ moment(clockinData.clock_in).format("LT") }} -->
+                  {{ useDateFormat(clockinData.clock_in, "h:m A").value }}
                 </p>
               </div>
             </div>
@@ -1846,7 +1849,8 @@ var amOrPm = timeString.slice(-2);
                 </p>
                 <div class="">
                   <p class="font-medium font-primary text-sm text-[#171106]">
-                    {{ moment(Date.now()).format("MMM Do YYYY") }}
+                    <!-- {{ moment(Date.now()).format("MMM Do YYYY") }} -->
+                    {{ useDateFormat(Date.now(), "MMM DD, YYYY hh:mm A").value }}
                   </p>
                 </div>
               </div>
@@ -1857,7 +1861,8 @@ var amOrPm = timeString.slice(-2);
                   Time
                 </p>
                 <p class="font-medium font-primary text-sm text-[#171106]">
-                  {{ moment(clockinData.clock_in).format("LT") }}
+                  <!--  {{ moment(clockinData.clock_in).format("LT") }} -->
+                  {{ useDateFormat(clockinData.clock_in, "h:m A").value }}
                 </p>
               </div>
             </div>
