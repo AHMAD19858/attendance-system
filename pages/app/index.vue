@@ -855,8 +855,14 @@ var amOrPm = timeString.slice(-2);
           Good {{ amOrPm === "PM" ? "evening" : "morning" }}
           {{ employeeData.first_name }},
         </p>
-        <p class="text-start font-normal text-sm mx-8 text-[#9D9B97] mb-3">
+        <p
+          class="text-start font-normal text-sm mx-8 text-[#9D9B97] mb-3"
+          v-if="checkData.clock_in === null && checkData.clock_out === null"
+        >
           Let's start a productive day!
+        </p>
+        <p class="text-start font-normal text-sm mx-8 text-[#9D9B97] mb-3">
+          You did you're best today!
         </p>
       </div>
       <div class="block lg:flex justify-between items-center mx-8 my-8">
@@ -891,7 +897,7 @@ var amOrPm = timeString.slice(-2);
           </vue-date-picker>
         </div>
         <!-- BUTTONS -->
-        <div class="block lg:flex gap-2">
+        <div class="block lg:flex gap-2" v-if="!actionLoading">
           <button
             @click="breakActionHandler('in')"
             v-if="
@@ -947,6 +953,14 @@ var amOrPm = timeString.slice(-2);
               checkData.clock_in === null ||
               (checkData.clock_in !== null && checkData.clock_out !== null)
             "
+            :disabled="
+              checkData.clock_in !== null && checkData.clock_out !== null
+            "
+            :class="
+              checkData.clock_in !== null &&
+              checkData.clock_out !== null &&
+              'bg-primary/50'
+            "
             class="bg-primary hover:bg-primary/90 w-full whitespace-nowrap my-5 lg:h-10 lg:my-0 text-white rounded-lg py-2 lg:px-9 font-primary font-medium text-base"
           >
             Clock in
@@ -959,6 +973,10 @@ var amOrPm = timeString.slice(-2);
             Clock out
           </button>
         </div>
+        <span
+          class="sk-loader w-[10%] lg:h-10 lg:my-0 rounded-md"
+          v-if="actionLoading"
+        ></span>
       </div>
       <!-- user  timeline  details-->
       <div class="lg:flex justify-between items-center mx-8 my-2 mt-4">
@@ -1034,7 +1052,7 @@ var amOrPm = timeString.slice(-2);
               v-if="sheetsLoading"
             ></span> -->
             {{
-              sheetAttendance[0]?.total_hours
+              sheetAttendance[0].total_hours
                 ? sheetAttendance[0]?.total_hours + " hrs"
                 : "0hrs"
             }}
@@ -1065,6 +1083,16 @@ var amOrPm = timeString.slice(-2);
             hrs
           </p>
         </div>
+        <span
+          class="sk-loader w-[25%] rounded-md"
+          style="height: 20px"
+          v-if="actionLoading"
+        ></span>
+        <span
+          class="sk-loader w-[23%] rounded-md"
+          style="height: 20px"
+          v-if="actionLoading"
+        ></span>
       </div>
 
       <!-- user  progressbar -->
@@ -1087,7 +1115,11 @@ var amOrPm = timeString.slice(-2);
               ((overTimeInMin / (16 * 60)) * 100).toFixed(1) +
               '%',
           }"
-          v-if="elapsedTime > 28800"
+          v-if="
+            elapsedTime > 28800 &&
+            checkData.clock_in !== null &&
+            checkData.clock_out === null
+          "
           class="singleLog h-3"
           :style="{
             background: '#5E8CF8',
@@ -1846,14 +1878,14 @@ var amOrPm = timeString.slice(-2);
               class="rounded-lg bg-[#FCEDE9] pt-4 pb-10 w-full items-start px-2 mt-7"
             >
               <div class="flex items-center">
-                <p class="text-[#CB4321] font-medium text-base px-2">Warning</p>
                 <i
-                  class="fi fi-rr-seal-exclamation text-[#CB4321] pt-1 !text-lg"
+                  class="fi fi-ss-triangle-warning text-[#CB4321] pt-1 !text-lg"
                 ></i>
+                <p class="text-[#CB4321] font-medium text-base px-2">Warning</p>
               </div>
-              <p class="text-[#CB4321] font-primaryRegular text-sm px-2">
-                Once you Clock out you won't be able to Clock in today again, if
-                you already want to Clock out click the Clock out button below.
+              <p class="text-[#CB4321] font-normal text-sm px-2">
+                Once you clock out you won't be able to clock in today again, if
+                you already want to Clock out click the clock out button below.
               </p>
             </div>
           </div>
