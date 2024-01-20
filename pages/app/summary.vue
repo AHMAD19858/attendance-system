@@ -10,6 +10,7 @@ let baseURL = useRuntimeConfig().public.apiBase;
 const { user, token } = useUserStore();
 const sheetsLoading = ref(false);
 const sheetAttendance = ref([]);
+const perPageList = ref([5, 10, 15, 20, 30, 50]);
 const todayDate = ref("");
 const today = new Date();
 const year = today.getFullYear();
@@ -114,9 +115,13 @@ function ClearFilter() {
 }
 </script>
 <template>
-  <AppLoader class="py-24 " v-if="sheetsLoading" />
+  <AppLoader class="py-24" v-if="sheetsLoading" />
   <!-- body -->
-  <div class="py-12 bg-white" v-else>
+  <div
+    class="pt-16 bg-white"
+    :class="sheetAttendance.length > 0 ? '' : 'h-screen overflow-x-auto lg:overflow-x-clip'"
+    v-else
+  >
     <div
       class="lg:flex justify-between items-baseline w-full block md:flex px-8"
     >
@@ -154,12 +159,12 @@ function ClearFilter() {
 
     <!-- table -->
     <div
-      class="my-10 overflow-scroll h-screen lg:h-auto lg:overflow-hidden mx-5 "
+      class="my-10 overflow-scroll h-screen lg:h-auto lg:overflow-hidden mx-5"
     >
       <!-- header -->
       <div
         :class="`grid-cols-${headers?.length}`"
-        class="lg:grid  hidden gap-4 border-b py-2 border-t px-4"
+        class="lg:grid hidden gap-4 border-b py-2 border-t px-4"
       >
         <div
           v-for="(item, index) in headers"
@@ -294,33 +299,15 @@ function ClearFilter() {
             {{ moment(item.clock_out.replace(/-/g, "/")).format("LT") }}
           </p>
           <p v-else class="flex items-center gap-1 text-danger">
-            <svg
-              width="13"
-              height="12"
-              viewBox="0 0 13 12"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6.67993 0C3.36622 0 0.679932 2.68629 0.679932 6C0.679932 9.31371 3.36622 12 6.67993 12C9.99364 12 12.6799 9.31371 12.6799 6C12.6763 2.68777 9.99217 0.00358594 6.67993 0ZM6.67993 10.5C4.19464 10.5 2.17993 8.48529 2.17993 6C2.17993 3.51471 4.19464 1.5 6.67993 1.5C9.16522 1.5 11.1799 3.51471 11.1799 6C11.1772 8.48414 9.16407 10.4972 6.67993 10.5Z"
-                fill="#E14A25"
-              />
-              <path
-                d="M6.67993 7.54554C7.09414 7.54554 7.42993 7.20975 7.42993 6.79554V3.29555C7.42993 2.88134 7.09414 2.54555 6.67993 2.54555C6.26572 2.54555 5.92993 2.88134 5.92993 3.29555V6.79554C5.92993 7.20975 6.26572 7.54554 6.67993 7.54554Z"
-                fill="#E14A25"
-              />
-              <path
-                d="M6.6825 9.49999C7.09671 9.49999 7.4325 9.16421 7.4325 8.74999C7.4325 8.33578 7.09671 7.99999 6.6825 7.99999C6.26828 7.99999 5.9325 8.33578 5.9325 8.74999C5.9325 9.16421 6.26828 9.49999 6.6825 9.49999Z"
-                fill="#E14A25"
-              />
-            </svg>
+            <i class="fi fi-rr-info pt-1 !text-xs"></i>
             Not Clockout
           </p>
         </div>
 
         <div class="hidden lg:block">
           <div
-            class="flex items-center gap-1 py-1 border-b w-3/4"
+            class="flex items-center gap-1 py-1 w-3/4"
+            :class="item?.breaks?.length > 1 ? 'border-b' : ''"
             v-if="item.breaks.length > 0"
             v-for="(section, index) in item.breaks"
           >
@@ -363,31 +350,9 @@ function ClearFilter() {
         </div>
         <div class="hidden lg:flex">
           <div class="hover-text">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              class="cursor-pointer"
-            >
-              <g clip-path="url(#clip0_875_11057)">
-                <path
-                  d="M12 0C9.21628 0.00344012 6.54756 1.11079 4.57918 3.07918C2.61079 5.04756 1.50344 7.71628 1.5 10.5C1.5 13.326 3.7 17.266 8.041 22.209C8.53604 22.7715 9.14526 23.2222 9.82808 23.5308C10.5109 23.8395 11.2517 23.9992 12.001 23.9992C12.7503 23.9992 13.4911 23.8395 14.1739 23.5308C14.8567 23.2222 15.466 22.7715 15.961 22.209C20.3 17.267 22.5 13.327 22.5 10.5C22.4966 7.71628 21.3892 5.04756 19.4208 3.07918C17.4524 1.11079 14.7837 0.00344012 12 0V0ZM13.706 20.231C13.4879 20.4654 13.2239 20.6524 12.9304 20.7802C12.6369 20.9081 12.3202 20.974 12 20.974C11.6798 20.974 11.3631 20.9081 11.0696 20.7802C10.7761 20.6524 10.5121 20.4654 10.294 20.231C6.611 16.036 4.494 12.489 4.494 10.501C4.494 8.51188 5.28418 6.60422 6.6907 5.1977C8.09722 3.79118 10.0049 3.001 11.994 3.001C13.9831 3.001 15.8908 3.79118 17.2973 5.1977C18.7038 6.60422 19.494 8.51188 19.494 10.501C19.5 12.489 17.389 16.036 13.706 20.231Z"
-                  fill="#AEACA8"
-                />
-                <path
-                  d="M12 6.05545C11.1371 6.05545 10.2936 6.31134 9.57607 6.79075C8.85858 7.27016 8.29936 7.95157 7.96914 8.7488C7.63891 9.54604 7.55251 10.4233 7.72086 11.2696C7.88921 12.116 8.30474 12.8934 8.91492 13.5036C9.5251 14.1137 10.3025 14.5293 11.1488 14.6976C11.9952 14.866 12.8724 14.7796 13.6697 14.4493C14.4669 14.1191 15.1483 13.5599 15.6277 12.8424C16.1071 12.1249 16.363 11.2814 16.363 10.4185C16.3617 9.26172 15.9016 8.15274 15.0837 7.33481C14.2657 6.51687 13.1568 6.05677 12 6.05545ZM12 11.7815C11.7304 11.7815 11.4669 11.7015 11.2428 11.5517C11.0186 11.402 10.8439 11.1891 10.7408 10.94C10.6376 10.691 10.6106 10.4169 10.6632 10.1525C10.7158 9.88815 10.8456 9.64528 11.0362 9.45466C11.2269 9.26404 11.4697 9.13423 11.7341 9.08164C11.9985 9.02905 12.2726 9.05604 12.5216 9.1592C12.7707 9.26237 12.9836 9.43706 13.1333 9.66121C13.2831 9.88535 13.363 10.1489 13.363 10.4185C13.3628 10.7799 13.2191 11.1264 12.9635 11.3819C12.708 11.6375 12.3614 11.7812 12 11.7815Z"
-                  fill="#AEACA8"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_875_11057">
-                  <rect width="24" height="24" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-
+            <i
+              class="fi fi-rr-marker cursor-pointer text-2xl hover:text-primary"
+            ></i>
             <span class="tooltip-text" id="bottom">
               <div class="border border-primary w-8 rounded-full my-1"></div>
               <p
@@ -403,63 +368,84 @@ function ClearFilter() {
                 </p>
               </div>
 
-              <div
-                class="border border-primary w-8 rounded-full mt-6 mb-1"
-              ></div>
-              <p
-                class="text-left font-primary font-light text-[#6E7A84] text-[13px]"
-              >
-                Check out Location
-              </p>
-              <div>
+              <div class="dd">
+                <div
+                  class="border border-primary w-8 rounded-full mt-6 mb-1"
+                ></div>
                 <p
-                  class="text-left font-medium font-primary text-base text-white"
-                  v-if="item.location_out == 'null'"
+                  class="text-left font-primary font-light text-[#6E7A84] text-[13px]"
                 >
-                  -
+                  Check out Location
                 </p>
-                <p
-                  v-else
-                  class="text-left font-medium font-primary text-base text-white"
-                >
-                  {{
-                    item.location_out == null
-                      ? "Not Clock out yet!! "
-                      : item.location_out
-                  }}
-                </p>
+                <div>
+                  <p
+                    class="text-left font-medium font-primary text-base text-white"
+                    v-if="item.location_out == 'null'"
+                  >
+                    -
+                  </p>
+                  <p
+                    v-else
+                    class="text-left font-medium font-primary text-base text-white"
+                  >
+                    {{
+                      item.location_out == null
+                        ? "Not Clock out yet!! "
+                        : item.location_out
+                    }}
+                  </p>
+                </div>
               </div>
             </span>
           </div>
         </div>
       </div>
+
+      <div v-if="sheetAttendance.length === 0 && !sheetsLoading">
+        <div class="flex py-8 justify-center">
+          <img src="~/assets/images/envelop.svg" class="object-contain" />
+        </div>
+
+        <div>
+          <p class="text-center text-xl font-primary text-black">
+            No result found
+          </p>
+          <p class="text-center font-primary text-base text-black">
+            No logs available
+          </p>
+        </div>
+      </div>
       <!-- pagination -->
-      <div class="lg:flex md:flex gap-8 items-center justify-end flex">
+      <div
+        v-if="sheetAttendance.length > 0 && !sheetsLoading"
+        class="lg:flex md:flex gap-8 items-center justify-end flex"
+      >
         <div class="lg:flex md:flex block items-baseline gap-4 w-full px-4">
           <p
             class="text-center hidden lg:block py-2 mt-3 text-[#93A3B0] text-sm font-normal font-primary"
           >
             Show rows per page
           </p>
-
-          <p
-            class="text-center lg:hidden py-2 mt-3 text-[#93A3B0] text-sm font-normal font-primary"
-          >
-            rows per page
-          </p>
           <div class="select-number">
             <select
+              class="text-dark dark:text-light px-3.5 py-2.5 rounded-md text-sm md:text-base outline-none w-[60px]"
               v-model="filterAttendance.per_page"
               @change="listTimeSheetAttendance(filterAttendance)"
             >
-              <option value="10">10</option>
-              <option value="15">15</option>
-              <option value="20">20</option>
-              <option value="25">25</option>
+              <option
+                v-for="item in perPageList"
+                :key="item"
+                :value="item"
+                class="text-sm !p-0"
+              >
+                <span
+                  >{{ Number(item) }}
+                  <i class="fi fi-rr-angle-small-down !text-red-500"></i
+                ></span>
+              </option>
             </select>
           </div>
         </div>
-{{ date }}
         <p class="whitespace-nowrap text-center font-primary">
           Page {{ pagination.currentPage }} of {{ pagination.lastPage }}
         </p>
@@ -480,22 +466,11 @@ function ClearFilter() {
                   : listTimeSheetAttendance({
                       page: pagination.currentPage - 1,
                       per_page: filterAttendance.per_page,
-                      date: formatedDate?formatedDate:date,
+                      date: formatedDate ? formatedDate : date,
                     })
               "
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+              <i class="fi fi-rr-angle-left !text-xs"></i>
             </a>
           </li>
 
@@ -511,24 +486,13 @@ function ClearFilter() {
                   : listTimeSheetAttendance({
                       page: pagination.currentPage + 1,
                       per_page: filterAttendance.per_page,
-                      date: formatedDate?formatedDate:date,
+                      date: formatedDate ? formatedDate : date,
                     })
               "
               href="#"
               class="inline-flex h-10 w-10 hover:bg-slate-200 text-base items-center justify-center rounded-lg bg-transparent text-gray-900 rtl:rotate-180"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+              <i class="fi fi-rr-angle-right !text-xs"></i>
             </a>
           </li>
         </ol>
@@ -541,13 +505,15 @@ function ClearFilter() {
 .tooltip-text {
   visibility: hidden;
   position: absolute;
-  z-index: 2;
+  z-index: 9999;
   width: 265px;
   color: white;
   font-size: 12px;
   background-color: #3d3c3b;
-  border-radius: 4px;
-  padding: 10px 15px 10px 15px;
+  border-radius: 8px;
+  padding: 10px 15px 45px 15px;
+  height: 170px;
+  overflow: auto;
 }
 
 .tooltip-text::before {

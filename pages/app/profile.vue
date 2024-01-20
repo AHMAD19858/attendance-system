@@ -1,7 +1,7 @@
 <script setup>
 const googleUrl = useRuntimeConfig().public.google;
 definePageMeta({
-  layout: "employee",
+  layout: "admin",
   middleware: ["auth"],
 });
 useHead({
@@ -338,7 +338,7 @@ async function listAllAttendance(body) {
   if (user.role.title === "Employee") {
     formData.append("employee_id", user.id);
   }
-
+  formData.append("employee_id", user.id);
   for (let key in body) {
     formData.append(key, body[key]);
   }
@@ -381,7 +381,8 @@ async function listAllLeaves(body) {
     formData.append("employee_id", user.id);
     formData.append("created_to_id", user.id);
   }
-
+  formData.append("employee_id", user.id);
+    formData.append("created_to_id", user.id);
   for (let key in body) {
     formData.append(key, body[key]);
   }
@@ -421,7 +422,7 @@ async function listTimeSheetAttendance(body) {
   if (user.role.title === "Employee") {
     formData.append("employee_id", user.id);
   }
-
+  formData.append("employee_id", user.id);
   for (let key in body) {
     formData.append(key, body[key]);
   }
@@ -523,7 +524,7 @@ async function checkAction() {
     actionLoading.value = false;
     checkData.value = response.data;
     formatLogs();
-    const date1 = new Date(response.data?.clock_in.replace(/-/g, "/"));
+    const date1 = new Date(response?.data?.clock_in.replace(/-/g, "/"));
     const date2 = new Date();
     const timeDifferenceInSeconds = calculateTimeDifferenceInSeconds(
       date1,

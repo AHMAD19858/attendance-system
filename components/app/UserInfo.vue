@@ -52,7 +52,15 @@ defineProps({
       </div>
     </div>
 
-    <div class="flex w-full items-center justify-center gap-8 pt-5">
+    <div
+      class="flex w-full items-center gap-8 pt-5"
+      :class="
+        user.role.title === 'Employee'
+          ? 'justify-center'
+          : ' justify-end px-2'
+      "
+    >
+    
       <div class="">
         <div class="border border-primary w-4 rounded-full mt-2"></div>
         <div>
@@ -128,7 +136,10 @@ defineProps({
           style="height: 20px"
           v-if="loading"
         ></span>
-        <p class="font-normal font-primary text-sm text-[#171106] animate-fade" v-else>
+        <p
+          class="font-normal font-primary text-sm text-[#171106] animate-fade"
+          v-else
+        >
           {{
             employeeData.used_vacations === "0"
               ? "0"
