@@ -227,11 +227,10 @@ var locationStatus = ref(null);
   localStorage.setItem("state", result.state);
 }); */
 function openDialog() {
- /*  address.value = null */
   if (localStorage.getItem("state") === "granted") {
     clockinActionModal.value = true;
     getLocation();
-  } else if (address.value == null) {
+  } else  {
     navigator.permissions.query({ name: "geolocation" }).then((result) => {
       if (result.state === "denied") {
         toast.error("Please allow location in browser settings");
@@ -242,15 +241,15 @@ function openDialog() {
         clockinActionModal.value = true;
       }
     });
-  } else {
+  }/*  else {
     clockinActionModal.value = true;
-  }
+  } */
 }
 function openClockOutDialog() {
-  if (locationStatus.value === "granted") {
+  if (localStorage.getItem("state") === "granted") {
     clockoutActionModal.value = true;
     getLocation();
-  } else if (address.value == null) {
+  } else  {
     navigator.permissions.query({ name: "geolocation" }).then((result) => {
       if (result.state === "denied") {
         toast.error("Please allow location in browser settings");
@@ -261,9 +260,9 @@ function openClockOutDialog() {
         clockoutActionModal.value = true;
       }
     });
-  } else {
+  } /* else {
     clockoutActionModal.value = true;
-  }
+  } */
 }
 const breakLoading = ref(false);
 async function breakActionHandler(type) {
