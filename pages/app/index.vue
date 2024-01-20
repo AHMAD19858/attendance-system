@@ -227,7 +227,8 @@ var locationStatus = ref(null);
   localStorage.setItem("state", result.state);
 }); */
 function openDialog() {
-  if (locationStatus.value === "granted") {
+ /*  address.value = null */
+  if (localStorage.getItem("state") === "granted") {
     clockinActionModal.value = true;
     getLocation();
   } else if (address.value == null) {
@@ -861,7 +862,7 @@ var amOrPm = timeString.slice(-2);
         >
           Let's start a productive day!
         </p>
-        <p class="text-start font-normal text-sm mx-8 text-[#9D9B97] mb-3">
+        <p class="text-start font-normal text-sm mx-8 text-[#9D9B97] mb-3" v-else>
           Day finished. See you tomorrow!
         </p>
       </div>

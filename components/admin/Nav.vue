@@ -132,7 +132,7 @@
 
         <div class="inline-flex items-center px-6" v-if="user">
           <slot />
-          <NuxtLink to="/dashboard">
+          <NuxtLink >
             <img
               :src="user.image"
               class="lg:hidden md:hidden w-[30px] object-cover aspect-square rounded-full"

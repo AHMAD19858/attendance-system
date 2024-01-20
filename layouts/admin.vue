@@ -15,9 +15,9 @@
       'sidebar-open': sidebarOpen,
     }"
   >
-    <DashboardNavbar>
+    <AdminNav>
       <slot name="navbar-right"></slot>
-    </DashboardNavbar>
+    </AdminNav>
     <AdminNav/>
     <AdminSidebar/>
     <main class="flex flex-col main-wrapper transition-all">
