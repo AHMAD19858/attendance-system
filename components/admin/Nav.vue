@@ -1,9 +1,9 @@
 <template>
   <nav class="fixed w-[calc(100%)] pe-2 z-20 bg-white">
-    <div class="flex h-20 border-b border-[#E6E5E4]">
+    <div class="flex h-14 border-b border-[#E6E5E4]">
       <div class="aside-nav bg-white transition-all h-full border-r">
         <!-- logo -->
-        <div class="relative flex justify-between px-3 items-center py-2">
+        <div class="relative flex justify-between px-3 items-center ">
           <svg
             @click="toggleSidebar()"
             v-if="sidebarOpen"
@@ -94,13 +94,13 @@
       >
         <HeadlessMenuButton
           type="button"
-          class="flex items-center gap-1.5 xl:gap-2 mt-5"
+          class="flex items-center gap-1.5 xl:gap-2 mt-2"
         >
           <!--  <NuxtLink :to="'/dashboard/profile/' + user.id"> -->
-          <img :src="user?.image" alt="" class="w-8 h-8 rounded-full" />
+          <img :src="user?.image" alt="" class="w-6 h-6 rounded-full" />
           <!--  </NuxtLink> -->
           <div>
-            <p class="text-[#4C4C4C] hidden lg:block font-medium font-primary text-base">
+            <p class="text-[#4C4C4C] hidden lg:block font-medium font-primary text-sm text-start">
               {{ user?.first_name }} {{ user?.last_name }}
             </p>
             <p class="font-primary font-light hidden lg:block text-[13px] text-[#6E7A84]">
@@ -119,7 +119,7 @@
         >
           <HeadlessMenuItems
             as="ul"
-            class="absolute right-0 mt-6 w-48 rounded-md bg-white dark:bg-[#282828] shadow-2xl shadow-zinc-300 ring-1 ring-black/5 dark:shadow-zinc-800 focus:outline-none dark:border dark:border-[#ffffff1a]"
+            class="absolute right-0 mt-3 w-48 rounded-md bg-white dark:bg-[#282828] shadow-2xl shadow-zinc-300 ring-1 ring-black/5 dark:shadow-zinc-800 focus:outline-none dark:border dark:border-[#ffffff1a]"
           >
             <li class="dropdown-item !py-3 !pt-4">
               <div class="flex items-start">

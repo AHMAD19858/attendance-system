@@ -53,7 +53,7 @@ async function Logout() {
   <aside
     class=" sidebar border-r border-[#e0e0e0] transition-all bg-white fixed px-4 lg:flex xl:flex md:flex flex-col justify-between"
   >
-    <div v-if="user.role.title === 'Manager'" class="sections flex-1 mt-[70px]">
+    <div v-if="user.role.title === 'Manager'" class="sections flex-1 mt-[50px]">
       <section
         v-for="(section, index) in sections"
         :key="index"
@@ -156,7 +156,7 @@ async function Logout() {
 .active-link-cl {
   @apply gap-2;
   .svg-container {
-    @apply bg-primary rounded-xl  text-white fill-white px-3 py-2 text-base w-[40px];
+    @apply bg-primary rounded-xl  text-white fill-white px-3 pt-2 pb-[5px] text-base w-[40px];
   }
   .pathName {
     @apply text-[#3D3C3B] font-primary font-semibold text-base gap-5;

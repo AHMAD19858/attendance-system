@@ -115,23 +115,26 @@ function ClearFilter() {
 }
 </script>
 <template>
-  <AppLoader class="py-24" v-if="sheetsLoading" />
+  <p class="pt-4 px-11 text-2xl">Summary</p>
   <!-- body -->
   <div
-    class="pt-16 bg-white"
-    :class="sheetAttendance.length > 0 ? '' : 'h-screen overflow-x-auto lg:overflow-x-clip'"
-    v-else
+    class="pt-4 bg-white"
+    :class="
+      sheetAttendance.length > 0 ? '' : ' overflow-x-auto lg:overflow-x-clip'
+    "
   >
     <div
-      class="lg:flex justify-between items-baseline w-full block md:flex px-8"
+      class="lg:flex justify-between items-baseline w-full block md:flex px-11"
     >
-      <div class="lg:flex md:flex flex gap-[10px] items-start w-full md:w-1/2">
+      <div
+        class="flex-col md:flex-row lg:flex-row justify-between items-baseline w-full block md:flex"
+      >
         <!-- search -->
-        <div>
+        <div class="w-full lg:w-[20%]">
           <vue-date-picker
             v-model="date"
             :preset-dates="presetDates"
-            placeholder="Time period:"
+            placeholder="Time period"
             :enable-time-picker="false"
             ignore-time-validation
             auto-apply
@@ -156,10 +159,11 @@ function ClearFilter() {
         </div>
       </div>
     </div>
-
+    <AppLoader class="py-24" v-if="sheetsLoading" />
     <!-- table -->
     <div
-      class="my-10 overflow-scroll h-screen lg:h-auto lg:overflow-hidden mx-5"
+      v-else
+      class="my-4 overflow-scroll !h-screen lg:h-auto lg:overflow-hidden mx-5"
     >
       <!-- header -->
       <div
@@ -180,7 +184,7 @@ function ClearFilter() {
         v-if="sheetAttendance.length > 0"
         :key="index"
         :class="`grid-cols-${headers.length} grid-rows-${sheetAttendance.length}`"
-        class="lg:grid items-center gap-4 px-4 ml-3 lg:ml-0 border lg:border-t-0 lg:border-r-0 lg:border-l-0 border-b my-4 lg:my-0 font-primary font-normal text-sm py-2 text-[#9D9B97]"
+        class="lg:grid items-center gap-2 px-1 ml-3 lg:ml-0 border lg:border-t-0 lg:border-r-0 lg:border-l-0 border-b my-4 lg:my-0 font-primary font-normal text-sm py-2 text-[#9D9B97]"
       >
         <div class="flex items-center gap-2 w-full">
           <div>

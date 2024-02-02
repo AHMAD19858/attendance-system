@@ -11,8 +11,8 @@ defineProps({
   desc: String || null,
   showReject: Boolean,
   hideActions: Boolean,
-  showActions:Boolean,
-  isFilter:Boolean
+  showActions: Boolean,
+  isFilter: Boolean,
 });
 </script>
 <template>
@@ -46,14 +46,22 @@ defineProps({
             leave-to="opacity-0 translate-x-1/3"
           >
             <HeadlessDialogPanel
-            :class="isFilter ? 'max-w-md':'max-w-lg'"
-              class="w-full h-[calc(100%-72px)] text-start max-w-lg transform overflow-hidden bg-white p-6 align-middle shadow-md transition-all"
+              :class="isFilter ? 'max-w-md' : 'max-w-lg'"
+              class="w-full h-[calc(100%-52px)] text-start max-w-lg transform overflow-hidden bg-white p-6 align-middle shadow-md transition-all"
             >
               <HeadlessDialogTitle
                 as="h3"
-                class="text-lg font-medium leading-6 text-gray-900"
+                class="text-lg font-medium leading-6 text-gray-900 flex justify-between items-center"
               >
                 <span class="block font-headers text-3xl"> {{ title }}</span>
+
+                <span
+                  @click="emit('close')"
+                  class="block font-headers text-base bg-primary/70 text-white px-2 py-2 rounded-lg hover:bg-primary-90 lg:hidden md:hidden"
+                >
+                  <i class="fi fi-rr-angle-left text-xs"></i>
+                  Back</span
+                >
               </HeadlessDialogTitle>
               <div class="my-2">
                 <p class="text-xs text-gray-400">
@@ -63,14 +71,11 @@ defineProps({
               <div class="overflow-y-auto h-[calc(100%-50px)]">
                 <slot />
               </div>
-              <div
-                class="action-bar w-full"
-                v-if=" showActions === true"
-              >
+              <div class="action-bar w-full" v-if="showActions === true">
                 <div class="mt-1 mr-3 flex gap-5 px-1 justify-end">
                   <button
                     type="button"
-                    class="outline-none  bg-transparent text-[#171106] mx-8 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2"
+                    class="outline-none bg-transparent text-[#171106] mx-8 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2"
                     @click="emit('close')"
                     :disabled="loading"
                   >

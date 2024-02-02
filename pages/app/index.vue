@@ -230,7 +230,7 @@ function openDialog() {
   if (localStorage.getItem("state") === "granted") {
     clockinActionModal.value = true;
     getLocation();
-  } else  {
+  } else {
     navigator.permissions.query({ name: "geolocation" }).then((result) => {
       if (result.state === "denied") {
         toast.error("Please allow location in browser settings");
@@ -241,7 +241,7 @@ function openDialog() {
         clockinActionModal.value = true;
       }
     });
-  }/*  else {
+  } /*  else {
     clockinActionModal.value = true;
   } */
 }
@@ -249,7 +249,7 @@ function openClockOutDialog() {
   if (localStorage.getItem("state") === "granted") {
     clockoutActionModal.value = true;
     getLocation();
-  } else  {
+  } else {
     navigator.permissions.query({ name: "geolocation" }).then((result) => {
       if (result.state === "denied") {
         toast.error("Please allow location in browser settings");
@@ -482,8 +482,9 @@ async function clockHandler(type) {
         elapsedTime.value = 0;
       });
       toast.success("Clocked in successfully");
+    } else {
+      toast.success("Clocked out successfully");
     }
-    toast.success("Clocked out successfully");
     checkAction();
     listAllLeaves(filterAttendance);
     listAllAttendance(filterAttendance);
@@ -861,7 +862,10 @@ var amOrPm = timeString.slice(-2);
         >
           Let's start a productive day!
         </p>
-        <p class="text-start font-normal text-sm mx-8 text-[#9D9B97] mb-3" v-else>
+        <p
+          class="text-start font-normal text-sm mx-8 text-[#9D9B97] mb-3"
+          v-else
+        >
           Day finished. See you tomorrow!
         </p>
       </div>
@@ -1518,11 +1522,9 @@ var amOrPm = timeString.slice(-2);
                 <div class="">
                   <p class="font-medium font-primary text-sm text-[#171106]">
                     <!--  {{ moment(clockinData.clock_in).format("MMM Do YYYY") }} -->
+
                     {{
-                      useDateFormat(
-                        clockinData.clock_in,
-                        "MMM DD, YYYY hh:mm A"
-                      ).value
+                      useDateFormat(clockinData.clock_in, "MMM DD, YYYY").value
                     }}
                   </p>
                 </div>
@@ -1778,7 +1780,9 @@ var amOrPm = timeString.slice(-2);
                 <div class="">
                   <p class="font-primary text-sm text-[#171106] font-medium">
                     <!-- {{ moment(Date.now()).format("MMM Do YYYY") }} -->
-                    {{ useDateFormat(Date.now(), "MMM DD, YYYY hh:mm A").value }}
+                    {{
+                      useDateFormat(Date.now(), "MMM DD, YYYY hh:mm A").value
+                    }}
                   </p>
                 </div>
               </div>
@@ -1850,7 +1854,9 @@ var amOrPm = timeString.slice(-2);
                 <div class="">
                   <p class="font-medium font-primary text-sm text-[#171106]">
                     <!-- {{ moment(Date.now()).format("MMM Do YYYY") }} -->
-                    {{ useDateFormat(Date.now(), "MMM DD, YYYY hh:mm A").value }}
+                    {{
+                      useDateFormat(Date.now(), "MMM DD, YYYY hh:mm A").value
+                    }}
                   </p>
                 </div>
               </div>
